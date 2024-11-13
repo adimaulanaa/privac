@@ -22,7 +22,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         actions: [
-          // Icon pertama
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
@@ -30,12 +29,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.power_settings_new),
             onPressed: () {
               // Action untuk ikon pertama
             },
           ),
-          // Icon kedua
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
