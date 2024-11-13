@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:privac/core/media/media_res.dart';
-import 'package:privac/features/login_screen.dart';
+import 'package:privac/features/profile/presentation/pages/login_screen.dart';
 
 class Onboarding extends StatefulWidget {
   const Onboarding({super.key});

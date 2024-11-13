@@ -24,7 +24,7 @@ class UIDialogLoading extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SpinKitThreeBounce(color: AppColors.dBonusApp, size: 15),
+              const SpinKitThreeBounce(color: AppColors.bgMain, size: 15),
               SizedBox(width: 6.w),
               Text(
                 text,
@@ -62,6 +62,7 @@ class SpinKitThreeBounce extends StatefulWidget {
   final AnimationController? controller;
 
   @override
+  // ignore: library_private_types_in_public_api
   _SpinKitThreeBounceState createState() => _SpinKitThreeBounceState();
 }
 
