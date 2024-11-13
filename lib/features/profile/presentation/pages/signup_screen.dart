@@ -6,7 +6,7 @@ import 'package:privac/core/uikit/src/theme/media_text.dart';
 import 'package:privac/core/uikit/uikit.dart';
 import 'package:privac/core/utils/popup.dart';
 import 'package:privac/core/utils/text_inputs.dart';
-import 'package:privac/features/profile/data/models/profile_save_model.dart';
+import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_event.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_state.dart';
@@ -24,7 +24,7 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  ProfileSaveModel profile = ProfileSaveModel();
+  ProfileModel profile = ProfileModel();
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +146,7 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
   }
 
   void _save() {
-    profile = ProfileSaveModel(
+    profile = ProfileModel(
       name: nameController.text,
       username: usernameController.text,
       password: passwordController.text,

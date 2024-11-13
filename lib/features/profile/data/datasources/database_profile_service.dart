@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
-import 'package:privac/features/profile/data/models/profile_save_model.dart';
+import 'package:privac/features/profile/data/models/login_model.dart';
+import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseProfileService {
@@ -44,7 +45,7 @@ class DatabaseProfileService {
     );
   }
 
-  Future<String> insertUser(ProfileSaveModel dt) async {
+  Future<String> insertUser(ProfileModel dt) async {
     try {
       // Get a reference to the database.
       final db = await _databaseProfile.database;
@@ -58,6 +59,56 @@ class DatabaseProfileService {
       return 'Success';
     } catch (e) {
       return 'Error: $e';
+    }
+  }
+
+  // Fungsi untuk mengecek apakah tabel kosong atau tidak
+  Future<bool> isUserTableEmpty() async {
+    final db = await database;
+
+    // Menghitung jumlah baris dalam tabel user
+    List<Map<String, Object?>> result =
+        await db.rawQuery('SELECT COUNT(*) FROM user');
+    return result.isNotEmpty;
+  }
+
+  // Fungsi untuk mengambil semua data user
+  Future<List<ProfileModel>> getAllUsers() async {
+    final db = await database;
+    // Mengambil semua data user dari tabel
+    List<Map<String, Object?>> result = await db.query('user');
+    for (var e in result) {
+      print(e['username']);
+      print(e['password']);
+    }
+    List<ProfileModel> res = [];
+
+    return res;
+  }
+
+  // Fungsi untuk login
+  Future<ProfileModel> login(LoginModel data) async {
+    final db = await database;
+    // Mengambil semua data user dari tabel
+    List<Map<String, Object?>> result = await db.query(
+      'user',
+      where: 'username = ? AND password = ?',
+      // Menyediakan username dan password untuk pencocokan
+      whereArgs: [data.username, data.password],
+    );
+    ProfileModel profile = ProfileModel();
+    // Jika data ditemukan
+    if (result.isNotEmpty) {
+      // Menyusun data hasil query ke dalam model Profile
+      Map<String, Object?> userData =
+          result.first; // Ambil data pertama yang ditemukan
+      profile = ProfileModel.fromMap(userData);
+
+      // Mengembalikan data Profile
+      return profile;
+    } else {
+      // Jika tidak ditemukan, kembalikan null atau handle sesuai kebutuhan
+      return profile;
     }
   }
 }
