@@ -1,5 +1,5 @@
 import 'package:privac/core/error/failures.dart';
-import 'package:privac/features/profile/data/datasources/database_profile_service.dart';
+import 'package:privac/features/services/database_service.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';

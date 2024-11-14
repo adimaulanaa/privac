@@ -3,19 +3,19 @@ import 'package:privac/core/uikit/src/theme/media_colors.dart';
 
 // FontStyle
 TextStyle transTextstyle =
-    const TextStyle(fontFamily: 'Poppins', color: AppColors.bgTrans);
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgTrans);
 TextStyle whiteTextstyle =
-    const TextStyle(fontFamily: 'Poppins', color: AppColors.bgColor);
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgColor);
 TextStyle blackTextstyle =
-    const TextStyle(fontFamily: 'Poppins', color: AppColors.bgBlack);
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgBlack);
 TextStyle greyTextstyle =
-    const TextStyle(fontFamily: 'Poppins', color: AppColors.bgGrey);
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgGrey);
 TextStyle blueTextstyle =
-    const TextStyle(fontFamily: 'Poppins', color: AppColors.bgBlue);
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgBlue);
 TextStyle greenTextstyle =
-    const TextStyle(fontFamily: 'Poppins', color: AppColors.bgGreen);
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgGreen);
 TextStyle orangeTextstyle =
-    const TextStyle(fontFamily: 'Poppins', color: AppColors.bgOrange);
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgOrange);
 
 // FontWeight
 FontWeight minlight = FontWeight.w200;

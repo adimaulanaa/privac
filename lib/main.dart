@@ -35,8 +35,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return UIKit(
       builder: (context, child) => MaterialApp(
+        theme: ThemeData(
+          fontFamily: 'Gilroy', // Mengatur font default untuk aplikasi
+        ),
         title: StringResources.nameApp,
-        theme: UITheme.light,
         initialRoute: '/onboarding',
         // getPages: AppPages.routes,
         // unknownRoute: AppPages.routes.first,
@@ -58,4 +60,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
