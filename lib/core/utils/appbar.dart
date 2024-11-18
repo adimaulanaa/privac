@@ -15,6 +15,8 @@ class IconBackAppbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
       child: Container(
         // width: 50,
         // height: 50,
@@ -47,6 +49,8 @@ class IconSaveAppbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
       // borderRadius: BorderRadius.circular(20), // Sesuaikan dengan bentuk lingkaran
       child: Container(
         width: 40,
@@ -62,6 +66,39 @@ class IconSaveAppbar extends StatelessWidget {
           // ignore: deprecated_member_use
           color: AppColors.bgBlack,
           fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+}
+
+class IconDots extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const IconDots({
+    super.key,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      // borderRadius: BorderRadius.circular(20), // Sesuaikan dengan bentuk lingkaran
+      child: Container(
+        width: 40,
+        height: 40,
+        margin: const EdgeInsets.only(right: 15, top: 5),
+        padding: const EdgeInsets.all(10),
+        decoration: const BoxDecoration(
+          color: AppColors.bgColor,
+          shape: BoxShape.circle,
+        ),
+        child: SvgPicture.asset(
+          MediaRes.vertical,
+          // ignore: deprecated_member_use
+          color: AppColors.bgBlack,
+          fit: BoxFit.cover,
         ),
       ),
     );

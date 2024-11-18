@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
@@ -12,18 +13,20 @@ import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_state.dart';
 import 'package:privac/features/dashboard/presentation/pages/dashboard_screen.dart';
 
-class CreateNoteScreen extends StatefulWidget {
-  const CreateNoteScreen({super.key});
+class ViewNoteScreen extends StatefulWidget {
+  final NotesModel note;
+  const ViewNoteScreen({super.key, required this.note});
 
   @override
-  State<CreateNoteScreen> createState() => _CreateNoteScreenState();
+  State<ViewNoteScreen> createState() => _ViewNoteScreenState();
 }
 
-class _CreateNoteScreenState extends State<CreateNoteScreen> {
+class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   String username = '';
   int usernameId = 0;
+  DateTime dates = DateTime.now();
   FocusNode titleFocus = FocusNode();
   FocusNode contentFocus = FocusNode();
 
@@ -32,6 +35,9 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
   @override
   void initState() {
     super.initState();
+    titleController.text = widget.note.title ?? '-';
+    contentController.text = widget.note.content ?? '-';
+    dates = widget.note.createdOn ?? DateTime.now();
   }
 
   @override
@@ -108,6 +114,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // SizedBox(height: size.height * 0.05),
           Padding(
@@ -137,6 +144,19 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                   fontWeight: bold,
                 ),
                 border: InputBorder.none,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 15, bottom: 15),
+            child: Text(
+              formatDate(dates),
+              maxLines: 1,
+              textAlign: TextAlign.left,
+              overflow: TextOverflow.ellipsis,
+              style: greyTextstyle.copyWith(
+                fontSize: 12,
+                fontWeight: light,
               ),
             ),
           ),
@@ -187,5 +207,14 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       updatedBy: '',
     );
     context.read<DashboardBloc>().add(CreateNotes(notes));
+  }
+
+  String formatDate(DateTime dateTime) {
+    // Setel locale ke 'id_ID' untuk bahasa Indonesia
+    // Intl.defaultLocale = 'id_ID';
+    // Format tanggal sesuai yang diinginkan
+    String formattedDate =
+        DateFormat('EEEE, MMMM dd, yyyy HH:mm').format(dateTime);
+    return formattedDate;
   }
 }
