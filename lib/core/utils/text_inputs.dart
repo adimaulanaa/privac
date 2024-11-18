@@ -14,6 +14,7 @@ TextFormField textInput(
   Color hintColor = Colors.grey, // Warna default untuk hint text
   Color fillColor = AppColors.bgGreySecond, // Warna default untuk fill color
   Function(String)? onChanged, // Callback untuk onChanged
+  Function()? onSubmit, // Callback untuk aksi setelah submit
 }) {
   return TextFormField(
     controller: ctr,
@@ -40,6 +41,11 @@ TextFormField textInput(
       // Memanggil callback jika ada
       if (onChanged != null) {
         onChanged(value); // Menghubungkan fungsionalitas lain di sini
+      }
+    },
+    onFieldSubmitted: (_) {
+      if (onSubmit != null) {
+        onSubmit(); // Callback ketika tombol Enter ditekan
       }
     },
   );

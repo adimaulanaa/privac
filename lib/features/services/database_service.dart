@@ -44,7 +44,7 @@ class DatabaseService {
       'CREATE TABLE user(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
     await db.execute(
-      'CREATE TABLE notes(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE notes(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
   }
 
@@ -72,9 +72,14 @@ class DatabaseService {
     final db = await database;
 
     // Menghitung jumlah baris dalam tabel user
+    // List<Map<String, Object?>> result =
+    //     await db.rawQuery('SELECT COUNT(*) FROM user');
     List<Map<String, Object?>> result =
-        await db.rawQuery('SELECT COUNT(*) FROM user');
-    return result.isNotEmpty;
+        await db.rawQuery('SELECT COUNT(*) AS count FROM user');
+
+    // Ambil nilai dari kolom 'count' dan periksa apakah jumlahnya nol
+    int count = Sqflite.firstIntValue(result) ?? 0;
+    return count > 0;
   }
 
   // Fungsi untuk mengambil semua data user
@@ -142,7 +147,7 @@ class DatabaseService {
     for (var e in result) {
       res.add(
         NotesModel(
-          id: e['id'].toString(),
+          id: int.parse(e['id'].toString()),
           title: e['title'].toString(),
           content: e['content'].toString(),
           isPin: int.parse(e['is_pin'].toString()),
@@ -151,6 +156,7 @@ class DatabaseService {
           biomatricId: e['biomatric_id'].toString(),
           faceId: e['biomatric_id'].toString(),
           primaryKey: e['face_id'].toString(),
+          createdId: int.parse(e['created_id'].toString()),
           createdOn: DateTime.parse(e['created_on'].toString()),
           createdBy: e['created_by'].toString(),
           updatedOn: DateTime.parse(e['updated_on'].toString()),

@@ -4,12 +4,13 @@ import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
 import 'package:privac/core/uikit/uikit.dart';
+import 'package:privac/core/utils/appbar.dart';
 import 'package:privac/core/utils/popup.dart';
-import 'package:privac/core/utils/text_inputs.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_state.dart';
+import 'package:privac/features/dashboard/presentation/pages/dashboard_screen.dart';
 
 class CreateNoteScreen extends StatefulWidget {
   const CreateNoteScreen({super.key});
@@ -21,14 +22,44 @@ class CreateNoteScreen extends StatefulWidget {
 class _CreateNoteScreenState extends State<CreateNoteScreen> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
+  String username = '';
+  int usernameId = 0;
+  FocusNode titleFocus = FocusNode();
+  FocusNode contentFocus = FocusNode();
 
   NotesModel notes = NotesModel();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      // body: _bodyData(size, context),
+      backgroundColor: AppColors.bgScreen,
+      appBar: AppBar(
+        backgroundColor: AppColors.bgScreen,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        toolbarHeight: 70,
+        leading: IconBackAppbar(
+          onTap: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            );
+          },
+        ),
+        actions: [
+          IconSaveAppbar(
+            onTap: () {
+              _save();
+            },
+          ),
+        ],
+      ),
       body: BlocListener<DashboardBloc, DashboardState>(
         listener: (context, state) {
           if (state is CreateNotesError) {
@@ -40,10 +71,10 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
           } else if (state is CreateNotesSuccess) {
             if (state.success != '') {
               succesPopup(context, state.success, () {
-                // Navigator.pushReplacement(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => const DashboardScreen()),
-                // );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                );
               });
             }
           }
@@ -74,57 +105,59 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: Column(
         children: [
-          SizedBox(height: size.height * 0.1),
-          Center(
-            child: Text(
-              StringResources.pCreate,
+          // SizedBox(height: size.height * 0.05),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              focusNode: titleFocus,
+              autofocus: true,
+              controller: titleController,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              onSubmitted: (text) {
+                titleFocus.unfocus();
+                FocusScope.of(context).requestFocus(contentFocus);
+              },
+              onChanged: (value) {
+                // markTitleAsDirty(value);
+              },
+              textInputAction: TextInputAction.next,
               style: blackTextstyle.copyWith(
-                fontSize: 18,
-                fontWeight: medium,
+                fontSize: 25,
+                fontWeight: bold,
+              ),
+              decoration: InputDecoration.collapsed(
+                hintText: 'Enter a title',
+                hintStyle: greyTextstyle.copyWith(
+                  fontSize: 25,
+                  fontWeight: bold,
+                ),
+                border: InputBorder.none,
               ),
             ),
           ),
-          SizedBox(height: size.height * 0.05),
-          textInput(
-            'Title',
-            0,
-            titleController,
-            TextInputType.text,
-            [],
-            onChanged: (value) {},
-          ),
-          SizedBox(height: size.height * 0.01),
-          textInput(
-            'Content',
-            0,
-            contentController,
-            TextInputType.text,
-            [],
-            onChanged: (value) {},
-          ),
-          SizedBox(height: size.height * 0.2),
-          Center(
-            child: InkWell(
-              splashFactory: NoSplash.splashFactory,
-              highlightColor: Colors.transparent,
-              onTap: () {
-                _save();
-              },
-              child: Container(
-                width: 200.w,
-                height: 50.h,
-                decoration: BoxDecoration(
-                  color: AppColors.bgMain,
-                  borderRadius: BorderRadius.circular(22),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                focusNode: contentFocus,
+                controller: contentController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                onChanged: (value) {
+                  // markContentAsDirty(value);
+                },
+                style: blackTextstyle.copyWith(
+                  fontSize: 15,
+                  fontWeight: medium,
                 ),
-                child: Center(
-                  child: Text(
-                    "Save",
-                    style: whiteTextstyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: semiBold,
-                    ),
+                decoration: InputDecoration.collapsed(
+                  hintText: 'Start typing...',
+                  hintStyle: greyTextstyle.copyWith(
+                    fontSize: 15,
+                    fontWeight: medium,
                   ),
+                  border: InputBorder.none,
                 ),
               ),
             ),
@@ -135,7 +168,6 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
   }
 
   void _save() {
-
     notes = NotesModel(
       title: titleController.text,
       content: contentController.text,
@@ -144,6 +176,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       biomatricId: '',
       faceId: '',
       primaryKey: '',
+      password: '',
       createdOn: DateTime.now(),
       createdBy: '',
       updatedOn: DateTime.now(),

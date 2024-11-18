@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class NotesModel {
-  String? id;
+  int? id;
   String? title;
   String? content;
   int? isPin;
@@ -10,6 +10,7 @@ class NotesModel {
   String? biomatricId;
   String? faceId;
   String? primaryKey;
+  int? createdId;
   DateTime? createdOn;
   String? createdBy;
   DateTime? updatedOn;
@@ -25,6 +26,7 @@ class NotesModel {
     this.biomatricId,
     this.faceId,
     this.primaryKey,
+    this.createdId,
     this.createdOn,
     this.createdBy,
     this.updatedOn,
@@ -44,6 +46,7 @@ class NotesModel {
       'biomatric_id': biomatricId,
       'face_id': faceId,
       'primary_key': primaryKey,
+      'created_id': createdId,
       'created_on': createdOn.toString(),
       'created_by': createdBy,
       'updated_on': updatedOn.toString(),
@@ -62,6 +65,7 @@ class NotesModel {
       biomatricId: map['biomatric_id'] ?? '',
       faceId: map['face_id'] ?? '',
       primaryKey: map['primary_key'] ?? '',
+      createdId: map['created_id'] ?? 0,
       createdOn: map['created_on'] != null ? DateTime.parse(map['created_on']) : null,
       createdBy: map['created_by'] ?? '',
       updatedOn: map['updated_on'] != null ? DateTime.parse(map['updated_on']) : null, 
@@ -76,5 +80,5 @@ class NotesModel {
   // Implement toString to make it easier to see information about
   // each breed when using the print statement.
   @override
-  String toString() => 'user(id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, primary_key: $primaryKey, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
+  String toString() => 'notes(id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, primary_key: $primaryKey, created_id: $createdId, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
 }

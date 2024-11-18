@@ -58,7 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
             succesPopup(context, state.success, () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const DashboardScreen()),
               );
             });
           }
@@ -166,17 +167,16 @@ class _LoginScreenState extends State<LoginScreen> {
             TextInputType.text,
             [],
             onChanged: (value) {},
+            onSubmit: () {
+              sendLogin();
+            },
           ),
           SizedBox(height: size.height * 0.1),
           InkWell(
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
             onTap: () {
-              login = LoginModel(
-                username: usernameController.text,
-                password: passwordController.text,
-              );
-              context.read<ProfileBloc>().add(LoginProfile(login));
+              sendLogin();
             },
             child: Container(
               width: 200.w,
@@ -198,4 +198,11 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       );
+  void sendLogin() {
+    login = LoginModel(
+      username: usernameController.text,
+      password: passwordController.text,
+    );
+    context.read<ProfileBloc>().add(LoginProfile(login));
+  }
 }
