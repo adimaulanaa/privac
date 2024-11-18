@@ -19,14 +19,14 @@ class ProfileLocalSourceImpl implements ProfileLocalSource {
 
   @override
   Future<String> create(ProfileModel data) async {
-    final DatabaseProfileService database = DatabaseProfileService();
+    final DatabaseService database = DatabaseService();
     String create = await database.insertUser(data);
     return create;
   }
 
   @override
   Future<bool> check() async {
-    final DatabaseProfileService database = DatabaseProfileService();
+    final DatabaseService database = DatabaseService();
     bool check = await database.isUserTableEmpty();
     return check;
   }
@@ -34,7 +34,7 @@ class ProfileLocalSourceImpl implements ProfileLocalSource {
   @override
   Future<String> login(LoginModel data) async {
     String message = '';
-    final DatabaseProfileService database = DatabaseProfileService();
+    final DatabaseService database = DatabaseService();
     try {
       ProfileModel result = await database.login(data);
       if (result.id != 0) {

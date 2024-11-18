@@ -7,7 +7,7 @@ import 'package:privac/core/uikit/uikit.dart';
 import 'package:privac/core/utils/popup.dart';
 import 'package:privac/core/utils/route_helpers.dart';
 import 'package:privac/core/utils/text_inputs.dart';
-import 'package:privac/features/dashboard/dashboard_screen.dart';
+import 'package:privac/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_event.dart';

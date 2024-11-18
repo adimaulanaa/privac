@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:privac/core/config/config_resources.dart';
-import 'package:privac/core/uikit/src/theme/theme.dart';
 import 'package:privac/core/uikit/src/uikit.dart';
+import 'package:privac/features/dashboard/presentation/bloc/bloc.dart';
 import 'package:privac/features/onboarding.dart';
 import 'package:privac/dependency_injection.dart' as di;
 import 'package:privac/features/profile/presentation/bloc/profile_bloc.dart';
@@ -19,6 +19,9 @@ void main() async {
       providers: [
         BlocProvider<ProfileBloc>(
           create: (context) => getIt<ProfileBloc>(),
+        ),
+        BlocProvider<DashboardBloc>(
+          create: (context) => getIt<DashboardBloc>(),
         ),
         // Tambahkan provider lain jika diperlukan
       ],

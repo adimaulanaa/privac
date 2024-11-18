@@ -1,14 +1,14 @@
 import 'package:path/path.dart';
+import 'package:privac/features/dashboard/data/models/notes_model.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:sqflite/sqflite.dart';
 
-class DatabaseProfileService {
+class DatabaseService {
   // Singleton pattern
-  static final DatabaseProfileService _databaseProfile =
-      DatabaseProfileService._internal();
-  factory DatabaseProfileService() => _databaseProfile;
-  DatabaseProfileService._internal();
+  static final DatabaseService _databaseService = DatabaseService._internal();
+  factory DatabaseService() => _databaseService;
+  DatabaseService._internal();
 
   static Database? _database;
   Future<Database> get database async {
@@ -43,12 +43,17 @@ class DatabaseProfileService {
     await db.execute(
       'CREATE TABLE user(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
+    await db.execute(
+      'CREATE TABLE notes(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+    );
   }
+
+  // ! Profile
 
   Future<String> insertUser(ProfileModel dt) async {
     try {
       // Get a reference to the database.
-      final db = await _databaseProfile.database;
+      final db = await _databaseService.database;
 
       // Insert the ProfileSaveModel data into the 'user' table
       await db.insert(
@@ -74,13 +79,13 @@ class DatabaseProfileService {
 
   // Fungsi untuk mengambil semua data user
   Future<List<ProfileModel>> getAllUsers() async {
-    final db = await database;
+    // final db = await database;
     // Mengambil semua data user dari tabel
-    List<Map<String, Object?>> result = await db.query('user');
-    for (var e in result) {
-      print(e['username']);
-      print(e['password']);
-    }
+    // List<Map<String, Object?>> result = await db.query('user');
+    // for (var e in result) {
+    //   print(e['username']);
+    //   print(e['password']);
+    // }
     List<ProfileModel> res = [];
 
     return res;
@@ -110,5 +115,49 @@ class DatabaseProfileService {
       // Jika tidak ditemukan, kembalikan null atau handle sesuai kebutuhan
       return profile;
     }
+  }
+
+  // ! Dashboard
+
+  Future<String> insertNotes(NotesModel dt) async {
+    try {
+      // Get a reference to the database.
+      final db = await _databaseService.database;
+      await db.insert(
+        'notes',
+        dt.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return 'Success';
+    } catch (e) {
+      return 'Error: $e';
+    }
+  }
+
+  // Fungsi untuk mengambil semua data notes
+  Future<List<NotesModel>> getAllNote() async {
+    final db = await database;
+    List<NotesModel> res = [];
+    List<Map<String, Object?>> result = await db.query('notes');
+    for (var e in result) {
+      res.add(
+        NotesModel(
+          id: e['id'].toString(),
+          title: e['title'].toString(),
+          content: e['content'].toString(),
+          isPin: int.parse(e['is_pin'].toString()),
+          isLocked: int.parse(e['is_locked'].toString()),
+          password: e['password'].toString(),
+          biomatricId: e['biomatric_id'].toString(),
+          faceId: e['biomatric_id'].toString(),
+          primaryKey: e['face_id'].toString(),
+          createdOn: DateTime.parse(e['created_on'].toString()),
+          createdBy: e['created_by'].toString(),
+          updatedOn: DateTime.parse(e['updated_on'].toString()),
+          updatedBy: e['updated_by'].toString(),
+        ),
+      );
+    }
+    return res;
   }
 }
