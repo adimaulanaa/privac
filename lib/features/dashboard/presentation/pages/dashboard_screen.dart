@@ -23,7 +23,9 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final searchController = TextEditingController();
   List<NotesModel> notes = [];
+  List<NotesModel> filterNotes = [];
   @override
   void initState() {
     super.initState();
@@ -97,6 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           } else if (state is DashboardLoaded) {
             if (state.data.isNotEmpty) {
               notes = state.data;
+              filterNotes = notes;
             }
           }
         },
@@ -126,19 +129,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: Column(
         children: [
-          SizedBox(height: size.height * 0.05),
-          const Text('Dashboard'),
+          SizedBox(height: size.height * 0.01),
+          // const Text('Dashboard'),
+          Padding(
+            padding: const EdgeInsets.only(left: 5, right: 5),
+            child: TextFormField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: 'Search Note...',
+                hintStyle: greyTextstyle.copyWith(
+                  fontSize: 16,
+                  fontWeight: light,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: AppColors.bgTrans,
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: InputBorder.none,
+                filled: true,
+                fillColor: AppColors.bgColor,
+                // Menambahkan ikon di kiri
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SvgPicture.asset(
+                    MediaRes.dSearch, // Ganti dengan ikon kiri yang sesuai
+                    // ignore: deprecated_member_use
+                    color: AppColors.bgGrey,
+                    width: 20, // Sesuaikan ukuran ikon
+                  ),
+                ),
+                // Ikon di kanan tetap ada
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SvgPicture.asset(
+                    MediaRes.dSearchRight,
+                    // ignore: deprecated_member_use
+                    color: AppColors.bgGrey,
+                    width: 20, // Sesuaikan ukuran ikon
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12.0, horizontal: 16.0),
+              ),
+              onChanged: (value) {
+                search(value);
+              },
+              maxLines: 1,
+              style: blackTextstyle.copyWith(
+                fontSize: 16,
+                fontWeight: light,
+              ),
+            ),
+          ),
+
+          SizedBox(height: size.height * 0.02),
           Expanded(
             child: Wrap(
               spacing: 10, // Jarak horizontal antar item
               runSpacing: 10, // Jarak vertikal antar baris
-              children: List.generate(notes.length, (index) {
-                return ListNotes(size: size, dt: notes[index]);
+              children: List.generate(filterNotes.length, (index) {
+                return ListNotes(size: size, dt: filterNotes[index]);
               }),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void search(String value) {
+    final lowerCaseQuery = value.toLowerCase();
+    setState(() {
+      filterNotes = notes.where((e) {
+        final title = e.title!.toLowerCase();
+        bool matchesQuery = title.contains(lowerCaseQuery);
+        return matchesQuery;
+      }).toList();
+    });
   }
 }
