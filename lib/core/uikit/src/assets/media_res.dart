@@ -14,6 +14,7 @@ class MediaRes {
 
   // ! Dashboard
   static const dPlus = '$_baseIcon/plus.svg';
+  static const dLock = '$_baseIcon/security-safe.svg';
 
     // ! Created Notes
   // static const dPlus = '$_baseIcon/plus.svg';

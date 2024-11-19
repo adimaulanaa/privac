@@ -41,10 +41,10 @@ class DatabaseService {
   Future<void> _onCreate(Database db, int version) async {
     // Run the CREATE {user} TABLE statement on the database.
     await db.execute(
-      'CREATE TABLE user(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE user(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
     await db.execute(
-      'CREATE TABLE notes(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE notes(_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
   }
 
@@ -147,7 +147,7 @@ class DatabaseService {
     for (var e in result) {
       res.add(
         NotesModel(
-          id: int.parse(e['id'].toString()),
+          id: int.parse(e['_id'].toString()),
           title: e['title'].toString(),
           content: e['content'].toString(),
           isPin: int.parse(e['is_pin'].toString()),
@@ -165,5 +165,53 @@ class DatabaseService {
       );
     }
     return res;
+  }
+
+  Future<String> updateNotes(NotesModel updatedNote) async {
+    try {
+      final db = await database;
+      final result = await db.update(
+        'Notes',
+        updatedNote.toMap(),
+        where: '_id = ?',
+        whereArgs: [updatedNote.id],
+      );
+      if (result > 0) {
+        return 'Update Berhasil';
+      } else {
+        return 'Update Gagal';
+      }
+    } catch (e) {
+      return 'Error $e';
+    }
+  }
+
+  Future<String> updatePasswordNotes(int id, String password, nameId) async {
+    try {
+      final db = await database;
+      final updatedData = <String, dynamic>{
+        'password': password,
+        'updated_on': DateTime.now().toString(),
+        'updated_by': nameId,
+      };
+      final result = await db.update(
+        'Notes',
+        updatedData, // Hanya mengirim kolom yang ingin diperbarui
+        where: '_id = ?', // Kriteria pemilihan data berdasarkan id
+        whereArgs: [id], // Nilai untuk kriteria
+      );
+      if (result > 0) {
+        return 'Update Berhasil';
+      } else {
+        return 'Update Gagal';
+      }
+    } catch (e) {
+      return 'Error $e';
+    }
+  }
+
+  deleteNotes(int id) async {
+    final db = await database;
+    await db.delete('Notes', where: '_id = ?', whereArgs: [id]);
   }
 }

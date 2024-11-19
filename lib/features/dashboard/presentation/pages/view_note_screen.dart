@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
 import 'package:privac/core/uikit/uikit.dart';
 import 'package:privac/core/utils/appbar.dart';
-import 'package:privac/core/utils/popup.dart';
+import 'package:privac/core/utils/snackbar_extension.dart';
+import 'package:privac/core/utils/text_inputs.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart';
@@ -24,6 +26,8 @@ class ViewNoteScreen extends StatefulWidget {
 class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool isSaved = false;
   String username = '';
   int usernameId = 0;
   DateTime dates = DateTime.now();
@@ -31,13 +35,19 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   FocusNode contentFocus = FocusNode();
 
   NotesModel notes = NotesModel();
+  NotesModel saved = NotesModel();
 
   @override
   void initState() {
     super.initState();
-    titleController.text = widget.note.title ?? '-';
-    contentController.text = widget.note.content ?? '-';
-    dates = widget.note.createdOn ?? DateTime.now();
+    notes = widget.note;
+    usernameId = notes.id ?? 0;
+    titleController.text = notes.title ?? '-';
+    contentController.text = notes.content ?? '-';
+    dates = notes.createdOn ?? DateTime.now();
+    if (usernameId != 0) {
+      isSaved = true;
+    }
   }
 
   @override
@@ -59,6 +69,53 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           },
         ),
         actions: [
+          PopupMenuButton<String>(
+            elevation: 9,
+            onSelected: (value) {
+              if (value == '1') {
+                dialogPopupPassword();
+              } else if (value == '2') {
+                // Tambahkan aksi lain jika diperlukan
+              }
+            },
+            icon: Container(
+              width: 42,
+              height: 42,
+              padding: const EdgeInsets.all(9),
+              decoration: const BoxDecoration(
+                color: AppColors.bgColor,
+                shape: BoxShape.circle,
+              ),
+              child: SvgPicture.asset(
+                MediaRes.horizontal,
+                // ignore: deprecated_member_use
+                color: AppColors.bgBlack,
+                fit: BoxFit.cover,
+              ),
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: '1',
+                child: Text(
+                  'Update Password',
+                  style: blackTextstyle.copyWith(
+                    fontSize: 12,
+                    fontWeight: light,
+                  ),
+                ),
+              ),
+              PopupMenuItem(
+                value: '2',
+                child: Text(
+                  'Update',
+                  style: blackTextstyle.copyWith(
+                    fontSize: 12,
+                    fontWeight: light,
+                  ),
+                ),
+              ),
+            ],
+          ),
           IconSaveAppbar(
             onTap: () {
               if (titleController.text.isNotEmpty &&
@@ -71,21 +128,25 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
       ),
       body: BlocListener<DashboardBloc, DashboardState>(
         listener: (context, state) {
-          if (state is CreateNotesError) {
+          if (state is UpdateNotesError) {
             if (state.error != '') {
-              errorPopup(context, state.error, () {
-                // Navigator.pop(context);
-              });
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
             }
-          } else if (state is CreateNotesSuccess) {
+          } else if (state is UpdateNotesSuccess) {
             if (state.success != '') {
-              succesPopup(context, state.success, () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardScreen()),
-                );
-              });
+              context.showSuccesSnackBar(
+                state.success,
+                onNavigate: () {
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const DashboardScreen()),
+                  // );
+                }, // bottom close
+              );
             }
           }
         },
@@ -94,7 +155,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
             return Stack(
               children: [
                 _bodyData(size, context), // Latar belakang utama
-                if (state is CreateNotesLoading) ...[
+                if (state is UpdateNotesLoading) ...[
                   Container(
                     color: Colors.black
                         .withOpacity(0.5), // Layar semi-transparan gelap
@@ -192,21 +253,93 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   }
 
   void _save() {
-    notes = NotesModel(
+    saved = NotesModel(
+      id: notes.id,
       title: titleController.text,
       content: contentController.text,
-      isPin: 0,
-      isLocked: 0,
-      biomatricId: '',
-      faceId: '',
-      primaryKey: '',
-      password: '',
-      createdOn: DateTime.now(),
-      createdBy: '',
+      isPin: notes.isPin,
+      isLocked: notes.isLocked,
+      biomatricId: notes.biomatricId,
+      faceId: notes.faceId,
+      primaryKey: notes.primaryKey,
+      createdId: notes.createdId,
+      password: notes.password,
+      createdOn: notes.createdOn,
+      createdBy: notes.createdBy,
       updatedOn: DateTime.now(),
-      updatedBy: '',
+      updatedBy: notes.updatedBy,
     );
-    context.read<DashboardBloc>().add(CreateNotes(notes));
+    context.read<DashboardBloc>().add(UpdateNotes(saved));
+  }
+
+  Future<void> dialogPopupPassword() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          // ignore: deprecated_member_use
+          child: AlertDialog(
+            backgroundColor: AppColors.bgColor, // Warna background abu-abu
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 10.h),
+                Text(
+                  'Password',
+                  textAlign: TextAlign.center,
+                  style: blackTextstyle.copyWith(
+                    fontSize: 14,
+                    fontWeight: light,
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                textInput(
+                  'Password',
+                  0,
+                  passwordController,
+                  TextInputType.text,
+                  [],
+                  onChanged: (value) {},
+                ),
+                SizedBox(height: 10.h),
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.read<DashboardBloc>().add(
+                          UpdatePassNotes(
+                            id: usernameId,
+                            password: passwordController.text,
+                          ),
+                        );
+                  },
+                  child: Container(
+                    height: 45.h,
+                    padding: const EdgeInsets.only(right: 10, left: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgMain,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Save',
+                        style: whiteTextstyle.copyWith(
+                          fontSize: 15,
+                          fontWeight: bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   String formatDate(DateTime dateTime) {

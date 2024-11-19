@@ -4,8 +4,8 @@ import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
 import 'package:privac/core/uikit/uikit.dart';
-import 'package:privac/core/utils/popup.dart';
 import 'package:privac/core/utils/route_helpers.dart';
+import 'package:privac/core/utils/snackbar_extension.dart';
 import 'package:privac/core/utils/text_inputs.dart';
 import 'package:privac/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
@@ -42,26 +42,31 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           if (state is CheckProfileError) {
             if (state.error != '') {
-              errorPopup(context, state.error, () {
-                // Navigator.pop(context);
-              });
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
             }
           } else if (state is LoginError) {
             if (state.error != '') {
-              errorPopup(context, state.error, () {
-                // Navigator.pop(context);
-              });
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
             }
           } else if (state is CheckProfileLoaded) {
             isDataUser = state.check;
           } else if (state is LoginSuccess) {
-            succesPopup(context, state.success, () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const DashboardScreen()),
-              );
-            });
+            context.showSuccesSnackBar(
+              state.success,
+              onNavigate: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const DashboardScreen()),
+                );
+              }, // bottom close
+            );
           }
         },
         child: BlocBuilder<ProfileBloc, ProfileState>(

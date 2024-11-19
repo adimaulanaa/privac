@@ -9,6 +9,7 @@ import 'package:privac/features/profile/data/datasources/profile_local_source.da
 import 'package:privac/features/profile/data/repositories/profile_repository.dart';
 import 'package:privac/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:privac/features/services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
@@ -16,7 +17,9 @@ final sl = GetIt.instance;
 Future<void> init() async {
   //! External
   final sharedPreferences = await SharedPreferences.getInstance();
+  final DatabaseService localDatabase = DatabaseService();
   sl.registerLazySingleton(() => sharedPreferences);
+  sl.registerLazySingleton(() => localDatabase);
 
   //! Core
   sl.registerLazySingleton<Dio>(() => createDio());
@@ -32,10 +35,13 @@ Future<void> init() async {
 
   //! Dashboard
   sl.registerLazySingleton<DashboardLocalSource>(
-    () => DashboardLocalSourceImpl(sharedPreferences: sl<SharedPreferences>()),
+    () => DashboardLocalSourceImpl(
+        sharedPreferences: sl<SharedPreferences>(),
+        localDatabase: sl<DatabaseService>()),
   );
   sl.registerLazySingleton<DashboardRepository>(
     () => DashboardRepositoryImpl(dataLocalSource: sl<DashboardLocalSource>()),
   );
-  sl.registerFactory(() => DashboardBloc(dashboardRepo: sl<DashboardRepository>()));
+  sl.registerFactory(
+      () => DashboardBloc(dashboardRepo: sl<DashboardRepository>()));
 }

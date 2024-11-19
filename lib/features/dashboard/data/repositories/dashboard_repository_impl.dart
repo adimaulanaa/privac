@@ -28,4 +28,24 @@ class DashboardRepositoryImpl implements DashboardRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+  
+  @override
+  Future<Either<Failure, String>> updateNotes(NotesModel data) async {
+    try {
+      final result = await dataLocalSource.updateNotes(data);
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+  
+  @override
+  Future<Either<Failure, String>> updatePassNotes(int id, String password) async {
+    try {
+      final result = await dataLocalSource.updatePassNotes(id, password);
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

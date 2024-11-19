@@ -23,3 +23,22 @@ class CreateNotes extends DashboardEvent {
   @override
   List<Object> get props => [save];
 }
+
+class UpdateNotes extends DashboardEvent {
+  final NotesModel save;
+
+  const UpdateNotes(this.save);
+
+  @override
+  List<Object> get props => [save];
+}
+
+class UpdatePassNotes extends DashboardEvent {
+  final int id;
+  final String password;
+
+  const UpdatePassNotes({required this.id, required this.password});
+
+  @override
+  List<Object> get props => [id, password];
+}

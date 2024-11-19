@@ -15,6 +15,7 @@ class NotesModel {
   String? createdBy;
   DateTime? updatedOn;
   String? updatedBy;
+  bool isPassword;
 
   NotesModel({
     this.id,
@@ -31,13 +32,14 @@ class NotesModel {
     this.createdBy,
     this.updatedOn,
     this.updatedBy,
+    this.isPassword = false,
   });
 
   // Convert a Breed into a Map. The keys must correspond to the titles of the
   // columns in the database.
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      '_id': id,
       'title': title,
       'content': content,
       'is_pin': isPin,
@@ -56,7 +58,7 @@ class NotesModel {
 
   factory NotesModel.fromMap(Map<String, dynamic> map) {
     return NotesModel(
-      id: map['id']?.toInt() ?? 0,
+      id: map['_id']?.toInt() ?? 0,
       title: map['title'] ?? '',
       content: map['content'] ?? '',
       isPin: map['is_pin'] ?? 0,
@@ -80,5 +82,5 @@ class NotesModel {
   // Implement toString to make it easier to see information about
   // each breed when using the print statement.
   @override
-  String toString() => 'notes(id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, primary_key: $primaryKey, created_id: $createdId, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
+  String toString() => 'notes(_id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, primary_key: $primaryKey, created_id: $createdId, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
 }

@@ -4,7 +4,7 @@ import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
 import 'package:privac/core/uikit/uikit.dart';
-import 'package:privac/core/utils/popup.dart';
+import 'package:privac/core/utils/snackbar_extension.dart';
 import 'package:privac/core/utils/text_inputs.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_bloc.dart';
@@ -35,18 +35,23 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
         listener: (context, state) {
           if (state is CreateProfileError) {
             if (state.error != '') {
-              errorPopup(context, state.error, () {
-                // Navigator.pop(context);
-              });
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
             }
           } else if (state is CreateProfileSuccess) {
             if (state.success != '') {
-              succesPopup(context, state.success, () {
+              context.showSuccesSnackBar(
+              state.success,
+              onNavigate: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const LoginScreen()),
                 );
-              });
+              }, // bottom close
+            );
             }
           }
         },

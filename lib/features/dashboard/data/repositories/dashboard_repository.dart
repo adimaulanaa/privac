@@ -7,4 +7,6 @@ import 'package:privac/features/dashboard/data/models/notes_model.dart';
 abstract class DashboardRepository {
   Future<Either<Failure, List<NotesModel>>> dashboard();
   Future<Either<Failure, String>> createNotes(NotesModel data);
+  Future<Either<Failure, String>> updateNotes(NotesModel data);
+  Future<Either<Failure, String>> updatePassNotes(int id, String password);
 }

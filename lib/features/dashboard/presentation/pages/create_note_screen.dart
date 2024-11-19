@@ -5,7 +5,7 @@ import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
 import 'package:privac/core/uikit/uikit.dart';
 import 'package:privac/core/utils/appbar.dart';
-import 'package:privac/core/utils/popup.dart';
+import 'package:privac/core/utils/snackbar_extension.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart';
@@ -67,19 +67,23 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
         listener: (context, state) {
           if (state is CreateNotesError) {
             if (state.error != '') {
-              errorPopup(context, state.error, () {
-                // Navigator.pop(context);
-              });
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
             }
           } else if (state is CreateNotesSuccess) {
             if (state.success != '') {
-              succesPopup(context, state.success, () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardScreen()),
-                );
-              });
+              context.showSuccesSnackBar(
+                state.success,
+                onNavigate: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardScreen()),
+                  );
+                }, // bottom close
+              );
             }
           }
         },
