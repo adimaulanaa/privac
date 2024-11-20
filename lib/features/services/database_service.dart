@@ -41,10 +41,10 @@ class DatabaseService {
   Future<void> _onCreate(Database db, int version) async {
     // Run the CREATE {user} TABLE statement on the database.
     await db.execute(
-      'CREATE TABLE user(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE user(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, tokens TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
     await db.execute(
-      'CREATE TABLE notes(_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, primary_key TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE notes(_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, tokens TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
   }
 
@@ -154,8 +154,8 @@ class DatabaseService {
           isLocked: int.parse(e['is_locked'].toString()),
           password: e['password'].toString(),
           biomatricId: e['biomatric_id'].toString(),
-          faceId: e['biomatric_id'].toString(),
-          primaryKey: e['face_id'].toString(),
+          faceId: e['face_id'].toString(),
+          tokens: e['tokens'].toString(),
           createdId: int.parse(e['created_id'].toString()),
           createdOn: DateTime.parse(e['created_on'].toString()),
           createdBy: e['created_by'].toString(),
@@ -180,6 +180,30 @@ class DatabaseService {
         return 'Update Berhasil';
       } else {
         return 'Update Gagal';
+      }
+    } catch (e) {
+      return 'Error $e';
+    }
+  }
+
+  Future<String> updatePinNotes(int id, int pin, nameId) async {
+    try {
+      final db = await database;
+      final updatedData = <String, dynamic>{
+        'is_pin': pin,
+        'updated_on': DateTime.now().toString(),
+        'updated_by': nameId,
+      };
+      final result = await db.update(
+        'Notes',
+        updatedData, // Hanya mengirim kolom yang ingin diperbarui
+        where: '_id = ?', // Kriteria pemilihan data berdasarkan id
+        whereArgs: [id], // Nilai untuk kriteria
+      );
+      if (result > 0) {
+        return 'Update Pin Berhasil';
+      } else {
+        return 'Update Pin Gagal';
       }
     } catch (e) {
       return 'Error $e';

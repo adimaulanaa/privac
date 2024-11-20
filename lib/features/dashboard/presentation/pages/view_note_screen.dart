@@ -28,6 +28,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final contentController = TextEditingController();
   final passwordController = TextEditingController();
   bool isSaved = false;
+  bool isPin = false;
   String username = '';
   int usernameId = 0;
   DateTime dates = DateTime.now();
@@ -47,6 +48,9 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     dates = notes.createdOn ?? DateTime.now();
     if (usernameId != 0) {
       isSaved = true;
+    }
+    if (notes.isPin == 1) {
+      isPin = true;
     }
   }
 
@@ -69,53 +73,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           },
         ),
         actions: [
-          PopupMenuButton<String>(
-            elevation: 9,
-            onSelected: (value) {
-              if (value == '1') {
-                dialogPopupPassword();
-              } else if (value == '2') {
-                // Tambahkan aksi lain jika diperlukan
-              }
-            },
-            icon: Container(
-              width: 42,
-              height: 42,
-              padding: const EdgeInsets.all(9),
-              decoration: const BoxDecoration(
-                color: AppColors.bgColor,
-                shape: BoxShape.circle,
-              ),
-              child: SvgPicture.asset(
-                MediaRes.horizontal,
-                // ignore: deprecated_member_use
-                color: AppColors.bgBlack,
-                fit: BoxFit.cover,
-              ),
-            ),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: '1',
-                child: Text(
-                  'Update Password',
-                  style: blackTextstyle.copyWith(
-                    fontSize: 12,
-                    fontWeight: light,
-                  ),
-                ),
-              ),
-              PopupMenuItem(
-                value: '2',
-                child: Text(
-                  'Update',
-                  style: blackTextstyle.copyWith(
-                    fontSize: 12,
-                    fontWeight: light,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _toggleSetting(),
           IconSaveAppbar(
             onTap: () {
               if (titleController.text.isNotEmpty &&
@@ -135,6 +93,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 onNavigate: () {}, // bottom close
               );
             }
+          } else if (state is UpdatePinNotesError) {
+            if (state.error != '') {
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
+            }
           } else if (state is UpdateNotesSuccess) {
             if (state.success != '') {
               context.showSuccesSnackBar(
@@ -148,6 +113,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 }, // bottom close
               );
             }
+          } else if (state is UpdatePinNotesSuccess) {
+            if (state.success != '') {
+              context.showSuccesSnackBar(
+                state.success,
+                onNavigate: () {}, // bottom close
+              );
+            }
           }
         },
         child: BlocBuilder<DashboardBloc, DashboardState>(
@@ -155,7 +127,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
             return Stack(
               children: [
                 _bodyData(size, context), // Latar belakang utama
-                if (state is UpdateNotesLoading) ...[
+                if (state is UpdateNotesLoading ||
+                    state is UpdatePinNotesLoading) ...[
                   Container(
                     color: Colors.black
                         .withOpacity(0.5), // Layar semi-transparan gelap
@@ -168,6 +141,96 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           },
         ),
       ),
+    );
+  }
+
+  PopupMenuButton<String> _toggleSetting() {
+    return PopupMenuButton<String>(
+      elevation: 9,
+      onSelected: (value) {
+        if (value == 'pin') {
+          // dialogPopupPassword();
+          isPin = !isPin;
+          if (isPin) {
+            context
+                .read<DashboardBloc>()
+                .add(UpdatePinNotes(id: usernameId, pin: 1));
+          } else {
+            context
+                .read<DashboardBloc>()
+                .add(UpdatePinNotes(id: usernameId, pin: 0));
+          }
+        } else if (value == '2') {
+          // Tambahkan aksi lain jika diperlukan
+        }
+      },
+      icon: Container(
+        width: 42,
+        height: 42,
+        padding: const EdgeInsets.all(9),
+        decoration: const BoxDecoration(
+          color: AppColors.bgColor,
+          shape: BoxShape.circle,
+        ),
+        child: SvgPicture.asset(
+          MediaRes.horizontal,
+          // ignore: deprecated_member_use
+          color: AppColors.bgBlack,
+          fit: BoxFit.cover,
+        ),
+      ),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'pin',
+          child: _textSetting('Use Pin', isPin),
+        ),
+        PopupMenuItem(
+          value: '2',
+          child: Text(
+            'Update',
+            style: blackTextstyle.copyWith(
+              fontSize: 12,
+              fontWeight: light,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Row _textSetting(String text, bool isOn) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          text,
+          style: blackTextstyle.copyWith(
+            fontSize: 12,
+            fontWeight: light,
+          ),
+        ),
+        const SizedBox(width: 5),
+        Container(
+          width: 40,
+          height: 23,
+          decoration: BoxDecoration(
+            color: isOn ? AppColors.bgMain : Colors.grey,
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: Align(
+            alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
+            child: Container(
+              width: 18,
+              height: 18,
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -261,7 +324,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
       isLocked: notes.isLocked,
       biomatricId: notes.biomatricId,
       faceId: notes.faceId,
-      primaryKey: notes.primaryKey,
+      tokens: notes.tokens,
       createdId: notes.createdId,
       password: notes.password,
       createdOn: notes.createdOn,

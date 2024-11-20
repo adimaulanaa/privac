@@ -48,4 +48,14 @@ class DashboardRepositoryImpl implements DashboardRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+  
+  @override
+  Future<Either<Failure, String>> updatePinNotes(int id, int pin) async {
+    try {
+      final result = await dataLocalSource.updatePinNotes(id, pin);
+      return Right(result);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

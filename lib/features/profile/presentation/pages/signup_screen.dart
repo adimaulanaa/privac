@@ -157,7 +157,7 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
       password: passwordController.text,
       biomatricId: '',
       faceId: '',
-      primaryKey: '',
+      tokens: '',
       createdOn: DateTime.now(),
       createdBy: 'ANONIMOUS',
       updatedOn: DateTime.now(),

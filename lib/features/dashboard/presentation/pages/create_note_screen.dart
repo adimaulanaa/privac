@@ -183,7 +183,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       isLocked: 0,
       biomatricId: '',
       faceId: '',
-      primaryKey: '',
+      tokens: '',
       password: '',
       createdOn: DateTime.now(),
       createdBy: '',

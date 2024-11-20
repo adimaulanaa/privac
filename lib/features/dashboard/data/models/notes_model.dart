@@ -9,7 +9,7 @@ class NotesModel {
   String? password;
   String? biomatricId;
   String? faceId;
-  String? primaryKey;
+  String? tokens;
   int? createdId;
   DateTime? createdOn;
   String? createdBy;
@@ -26,7 +26,7 @@ class NotesModel {
     this.password,
     this.biomatricId,
     this.faceId,
-    this.primaryKey,
+    this.tokens,
     this.createdId,
     this.createdOn,
     this.createdBy,
@@ -47,7 +47,7 @@ class NotesModel {
       'password': password,
       'biomatric_id': biomatricId,
       'face_id': faceId,
-      'primary_key': primaryKey,
+      'tokens': tokens,
       'created_id': createdId,
       'created_on': createdOn.toString(),
       'created_by': createdBy,
@@ -66,7 +66,7 @@ class NotesModel {
       password: map['password'] ?? '',
       biomatricId: map['biomatric_id'] ?? '',
       faceId: map['face_id'] ?? '',
-      primaryKey: map['primary_key'] ?? '',
+      tokens: map['tokens'] ?? '',
       createdId: map['created_id'] ?? 0,
       createdOn: map['created_on'] != null ? DateTime.parse(map['created_on']) : null,
       createdBy: map['created_by'] ?? '',
@@ -82,5 +82,5 @@ class NotesModel {
   // Implement toString to make it easier to see information about
   // each breed when using the print statement.
   @override
-  String toString() => 'notes(_id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, primary_key: $primaryKey, created_id: $createdId, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
+  String toString() => 'notes(_id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, tokens: $tokens, created_id: $createdId, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
 }

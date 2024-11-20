@@ -6,6 +6,7 @@ abstract class DashboardLocalSource {
   Future<String> createNotes(NotesModel data);
   Future<String> updateNotes(NotesModel data);
   Future<String> updatePassNotes(int id, String password);
+  Future<String> updatePinNotes(int id, int pin);
   Future<List<NotesModel>> getDash();
 }
 
@@ -42,6 +43,10 @@ class DashboardLocalSourceImpl implements DashboardLocalSource {
         notes.add(e);
       }
     }
+    if (notes.isNotEmpty) {
+      // Memprioritaskan catatan berdasarkan nilai isPin (nilai tertinggi di atas)
+      notes.sort((a, b) => b.isPin!.compareTo(a.isPin!));
+    }
     return notes;
   }
   
@@ -57,6 +62,13 @@ class DashboardLocalSourceImpl implements DashboardLocalSource {
   Future<String> updatePassNotes(int id, String password) async {
     String username = sharedPreferences.getString('username') ?? '';
     String create = await localDatabase.updatePasswordNotes(id, password, username);
+    return create;
+  }
+  
+  @override
+  Future<String> updatePinNotes(int id, int pin)  async {
+    String username = sharedPreferences.getString('username') ?? '';
+    String create = await localDatabase.updatePinNotes(id, pin, username);
     return create;
   }
 }

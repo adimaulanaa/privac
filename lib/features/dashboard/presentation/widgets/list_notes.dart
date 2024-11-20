@@ -34,7 +34,6 @@ class ListNotes extends StatelessWidget {
         );
       },
       child: Container(
-        alignment: Alignment.center,
         width: (size.width - 40) / 2,
         decoration: BoxDecoration(
           color: AppColors.bgScreen,
@@ -42,7 +41,6 @@ class ListNotes extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // Konten utama
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -63,11 +61,26 @@ class ListNotes extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SvgPicture.asset(
-                        MediaRes.vertical,
-                        // ignore: deprecated_member_use
-                        color: AppColors.bgBlack,
-                        fit: BoxFit.cover,
+                      Row(
+                        children: [
+                          dt.isPin == 1
+                              ? Padding(
+                                  padding: const EdgeInsets.only(right: 5),
+                                  child: SvgPicture.asset(
+                                    MediaRes.dPin,
+                                    // ignore: deprecated_member_use
+                                    color: AppColors.bgBlack,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          SvgPicture.asset(
+                            MediaRes.vertical,
+                            // ignore: deprecated_member_use
+                            color: AppColors.bgBlack,
+                            fit: BoxFit.cover,
+                          ),
+                        ],
                       ),
                     ],
                   ),

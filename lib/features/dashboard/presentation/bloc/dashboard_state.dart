@@ -14,6 +14,7 @@ class DashboardLoading extends DashboardState {}
 class CreateNotesLoading extends DashboardState {}
 class UpdateNotesLoading extends DashboardState {}
 class UpdatePassNotesLoading extends DashboardState {}
+class UpdatePinNotesLoading extends DashboardState {}
 
 class DashboardError extends DashboardState {
   final String dashboard;
@@ -63,6 +64,42 @@ class UpdateNotesSuccess extends DashboardState {
   final String success;
 
   const UpdateNotesSuccess(this.success);
+
+  @override
+  List<Object> get props => [success];
+}
+
+class UpdatePinNotesError extends DashboardState {
+  final String error;
+
+  const UpdatePinNotesError(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
+
+class UpdatePinNotesSuccess extends DashboardState {
+  final String success;
+
+  const UpdatePinNotesSuccess(this.success);
+
+  @override
+  List<Object> get props => [success];
+}
+
+class UpdatePassNotesError extends DashboardState {
+  final String error;
+
+  const UpdatePassNotesError(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
+
+class UpdatePassNotesSuccess extends DashboardState {
+  final String success;
+
+  const UpdatePassNotesSuccess(this.success);
 
   @override
   List<Object> get props => [success];

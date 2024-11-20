@@ -7,7 +7,7 @@ class DashboardModel {
   String? password;
   String? biomatricId;
   String? faceId;
-  String? primaryKey;
+  String? tokens;
   DateTime? createdOn;
   String? createdBy;
   DateTime? updatedOn;
@@ -20,7 +20,7 @@ class DashboardModel {
     this.password,
     this.biomatricId,
     this.faceId,
-    this.primaryKey,
+    this.tokens,
     this.createdOn,
     this.createdBy,
     this.updatedOn,
@@ -37,7 +37,7 @@ class DashboardModel {
       'password': password,
       'biomatric_id': biomatricId,
       'face_id': faceId,
-      'primary_key': primaryKey,
+      'tokens': tokens,
       'created_on': createdOn.toString(),
       'created_by': createdBy,
       'updated_on': updatedOn.toString(),
@@ -53,7 +53,7 @@ class DashboardModel {
       password: map['password'] ?? '',
       biomatricId: map['biomatric_id'] ?? '',
       faceId: map['face_id'] ?? '',
-      primaryKey: map['primary_key'] ?? '',
+      tokens: map['tokens'] ?? '',
       createdOn: map['created_on'] != null ? DateTime.parse(map['created_on']) : null,
       createdBy: map['created_by'] ?? '',
       updatedOn: map['updated_on'] != null ? DateTime.parse(map['updated_on']) : null, 
@@ -68,5 +68,5 @@ class DashboardModel {
   // Implement toString to make it easier to see information about
   // each breed when using the print statement.
   @override
-  String toString() => 'user(id: $id, name: $name, username: $username, password: $password, biomatric_id: $biomatricId, face_id: $faceId, primary_key: $primaryKey, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
+  String toString() => 'user(id: $id, name: $name, username: $username, password: $password, biomatric_id: $biomatricId, face_id: $faceId, tokens: $tokens, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
 }

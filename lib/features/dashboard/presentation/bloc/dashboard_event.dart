@@ -33,6 +33,16 @@ class UpdateNotes extends DashboardEvent {
   List<Object> get props => [save];
 }
 
+class UpdatePinNotes extends DashboardEvent {
+  final int id;
+  final int pin;
+
+  const UpdatePinNotes({required this.id, required this.pin});
+
+  @override
+  List<Object> get props => [id, pin];
+}
+
 class UpdatePassNotes extends DashboardEvent {
   final int id;
   final String password;

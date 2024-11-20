@@ -14,6 +14,7 @@ class MediaRes {
 
   // ! Dashboard
   static const dPlus = '$_baseIcon/plus.svg';
+  static const dPin = '$_baseIcon/pin.svg';
   static const dLock = '$_baseIcon/security-safe.svg';
   static const dSearch = '$_baseIcon/search.svg';
   static const dSearchRight = '$_baseIcon/search-right.svg';
