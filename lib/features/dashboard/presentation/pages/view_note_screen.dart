@@ -10,6 +10,7 @@ import 'package:privac/core/utils/appbar.dart';
 import 'package:privac/core/utils/snackbar_extension.dart';
 import 'package:privac/core/utils/text_inputs.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
+import 'package:privac/features/dashboard/data/models/update_security_model.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_state.dart';
@@ -27,8 +28,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   final passwordController = TextEditingController();
+  String biomatricId = '';
+  String faceId = '';
   bool isSaved = false;
   bool isPin = false;
+  bool isPassword = false;
+  bool isBiomatric = false;
+  bool isFace = false;
   String username = '';
   int usernameId = 0;
   DateTime dates = DateTime.now();
@@ -51,6 +57,9 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     }
     if (notes.isPin == 1) {
       isPin = true;
+    }
+    if (notes.isPassword) {
+      isPassword = true;
     }
   }
 
@@ -100,6 +109,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 onNavigate: () {}, // bottom close
               );
             }
+          } else if (state is UpdateSecurityNotesError) {
+            if (state.error != '') {
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
+            }
           } else if (state is UpdateNotesSuccess) {
             if (state.success != '') {
               context.showSuccesSnackBar(
@@ -120,6 +136,14 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 onNavigate: () {}, // bottom close
               );
             }
+          } else if (state is UpdateSecurityNotesSuccess) {
+            if (state.success != '') {
+              isPassword = !isPassword;
+              context.showSuccesSnackBar(
+                state.success,
+                onNavigate: () {}, // bottom close
+              );
+            }
           }
         },
         child: BlocBuilder<DashboardBloc, DashboardState>(
@@ -128,7 +152,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
               children: [
                 _bodyData(size, context), // Latar belakang utama
                 if (state is UpdateNotesLoading ||
-                    state is UpdatePinNotesLoading) ...[
+                    state is UpdatePinNotesLoading ||
+                    state is UpdateSecutiryNotesLoading) ...[
                   Container(
                     color: Colors.black
                         .withOpacity(0.5), // Layar semi-transparan gelap
@@ -148,8 +173,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     return PopupMenuButton<String>(
       elevation: 9,
       onSelected: (value) {
+        String names = '';
         if (value == 'pin') {
-          // dialogPopupPassword();
           isPin = !isPin;
           if (isPin) {
             context
@@ -160,8 +185,32 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 .read<DashboardBloc>()
                 .add(UpdatePinNotes(id: usernameId, pin: 0));
           }
-        } else if (value == '2') {
-          // Tambahkan aksi lain jika diperlukan
+        } else if (value == 'password' ||
+            value == 'biomatric' ||
+            value == 'face') {
+          if (value == 'password') {
+            isPassword = true;
+            isBiomatric = false;
+            isFace = false;
+            biomatricId = '';
+            faceId = '';
+            names = 'Password';
+          } else if (value == 'biomatric') {
+            isPassword = false;
+            isBiomatric = true;
+            isFace = false;
+            passwordController.text = '';
+            faceId = '';
+            names = 'Biomatric';
+          } else if (value == 'face') {
+            isPassword = false;
+            isBiomatric = false;
+            isFace = true;
+            biomatricId = '';
+            passwordController.text = '';
+            names = 'Face';
+          }
+          dialogPopupPassword(value, names);
         }
       },
       icon: Container(
@@ -182,17 +231,19 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
       itemBuilder: (context) => [
         PopupMenuItem(
           value: 'pin',
-          child: _textSetting('Use Pin', isPin),
+          child: _textSetting('Pin', isPin),
         ),
         PopupMenuItem(
-          value: '2',
-          child: Text(
-            'Update',
-            style: blackTextstyle.copyWith(
-              fontSize: 12,
-              fontWeight: light,
-            ),
-          ),
+          value: 'password',
+          child: _textSetting('Password', isPassword),
+        ),
+        PopupMenuItem(
+          value: 'biomatric',
+          child: _textSetting('Biomatric', isBiomatric),
+        ),
+        PopupMenuItem(
+          value: 'face',
+          child: _textSetting('Face', isFace),
         ),
       ],
     );
@@ -335,7 +386,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     context.read<DashboardBloc>().add(UpdateNotes(saved));
   }
 
-  Future<void> dialogPopupPassword() {
+  Future<void> dialogPopupPassword(String value, String name) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -351,7 +402,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
               children: [
                 SizedBox(height: 10.h),
                 Text(
-                  'Password',
+                  name,
                   textAlign: TextAlign.center,
                   style: blackTextstyle.copyWith(
                     fontSize: 14,
@@ -360,7 +411,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 ),
                 SizedBox(height: 10.h),
                 textInput(
-                  'Password',
+                  name,
                   0,
                   passwordController,
                   TextInputType.text,
@@ -371,11 +422,15 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 InkWell(
                   onTap: () {
                     Navigator.of(context).pop();
+                    UpdateSecurityModel save = UpdateSecurityModel(
+                      id: usernameId,
+                      password: passwordController.text,
+                      biomatricId: biomatricId,
+                      faceId: faceId,
+                      tokens: '',
+                    );
                     context.read<DashboardBloc>().add(
-                          UpdatePassNotes(
-                            id: usernameId,
-                            password: passwordController.text,
-                          ),
+                          UpdateSecurityNotes(save: save),
                         );
                   },
                   child: Container(

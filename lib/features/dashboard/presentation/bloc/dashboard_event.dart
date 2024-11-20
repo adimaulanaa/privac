@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
+import 'package:privac/features/dashboard/data/models/update_security_model.dart';
 
 abstract class DashboardEvent extends Equatable {
   const DashboardEvent();
@@ -43,12 +44,11 @@ class UpdatePinNotes extends DashboardEvent {
   List<Object> get props => [id, pin];
 }
 
-class UpdatePassNotes extends DashboardEvent {
-  final int id;
-  final String password;
+class UpdateSecurityNotes extends DashboardEvent {
+  final UpdateSecurityModel save;
 
-  const UpdatePassNotes({required this.id, required this.password});
+  const UpdateSecurityNotes({required this.save});
 
   @override
-  List<Object> get props => [id, password];
+  List<Object> get props => [save];
 }

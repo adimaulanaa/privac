@@ -43,15 +43,15 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
           } else if (state is CreateProfileSuccess) {
             if (state.success != '') {
               context.showSuccesSnackBar(
-              state.success,
-              onNavigate: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const LoginScreen()),
-                );
-              }, // bottom close
-            );
+                state.success,
+                onNavigate: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                  );
+                }, // bottom close
+              );
             }
           }
         },
@@ -73,6 +73,32 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
           },
         ),
       ),
+
+      floatingActionButton: Container(
+        width: MediaQuery.of(context).size.width - 32,
+        height: 50.h,
+        decoration: BoxDecoration(
+          color: AppColors.bgMain,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: InkWell(
+            splashFactory: NoSplash.splashFactory,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              _save();
+            },
+            child: Text(
+              'Save',
+              style: whiteTextstyle.copyWith(
+                fontSize: 24,
+                fontWeight: semiBold,
+              ),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -117,33 +143,6 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
             TextInputType.text,
             [],
             onChanged: (value) {},
-          ),
-          SizedBox(height: size.height * 0.2),
-          Center(
-            child: InkWell(
-              splashFactory: NoSplash.splashFactory,
-              highlightColor: Colors.transparent,
-              onTap: () {
-                _save();
-              },
-              child: Container(
-                width: 200.w,
-                height: 50.h,
-                decoration: BoxDecoration(
-                  color: AppColors.bgMain,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Center(
-                  child: Text(
-                    "Save",
-                    style: whiteTextstyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: semiBold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ),
         ],
       ),

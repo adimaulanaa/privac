@@ -1,11 +1,12 @@
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
+import 'package:privac/features/dashboard/data/models/update_security_model.dart';
 import 'package:privac/features/services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class DashboardLocalSource {
   Future<String> createNotes(NotesModel data);
   Future<String> updateNotes(NotesModel data);
-  Future<String> updatePassNotes(int id, String password);
+  Future<String> updateSecurityNotes(UpdateSecurityModel save);
   Future<String> updatePinNotes(int id, int pin);
   Future<List<NotesModel>> getDash();
 }
@@ -59,9 +60,9 @@ class DashboardLocalSourceImpl implements DashboardLocalSource {
   }
 
   @override
-  Future<String> updatePassNotes(int id, String password) async {
+  Future<String> updateSecurityNotes(UpdateSecurityModel save) async {
     String username = sharedPreferences.getString('username') ?? '';
-    String create = await localDatabase.updatePasswordNotes(id, password, username);
+    String create = await localDatabase.updatePasswordNotes(save, username);
     return create;
   }
   

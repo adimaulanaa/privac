@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:privac/core/error/failures.dart';
 import 'package:privac/features/dashboard/data/datasources/dashboard_local_source.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
+import 'package:privac/features/dashboard/data/models/update_security_model.dart';
 import 'package:privac/features/dashboard/data/repositories/dashboard_repository.dart';
 
 class DashboardRepositoryImpl implements DashboardRepository {
@@ -40,9 +41,9 @@ class DashboardRepositoryImpl implements DashboardRepository {
   }
   
   @override
-  Future<Either<Failure, String>> updatePassNotes(int id, String password) async {
+  Future<Either<Failure, String>> updateSecurityNotes(UpdateSecurityModel save) async {
     try {
-      final result = await dataLocalSource.updatePassNotes(id, password);
+      final result = await dataLocalSource.updateSecurityNotes(save);
       return Right(result);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

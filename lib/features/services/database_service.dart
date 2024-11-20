@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
+import 'package:privac/features/dashboard/data/models/update_security_model.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -210,11 +211,14 @@ class DatabaseService {
     }
   }
 
-  Future<String> updatePasswordNotes(int id, String password, nameId) async {
+  Future<String> updatePasswordNotes(UpdateSecurityModel save, nameId) async {
     try {
       final db = await database;
       final updatedData = <String, dynamic>{
-        'password': password,
+        'password': save.password,
+        'biomatric_id': save.biomatricId,
+        'face_id': save.faceId,
+        'tokens': save.tokens,
         'updated_on': DateTime.now().toString(),
         'updated_by': nameId,
       };
@@ -222,7 +226,7 @@ class DatabaseService {
         'Notes',
         updatedData, // Hanya mengirim kolom yang ingin diperbarui
         where: '_id = ?', // Kriteria pemilihan data berdasarkan id
-        whereArgs: [id], // Nilai untuk kriteria
+        whereArgs: [save.id], // Nilai untuk kriteria
       );
       if (result > 0) {
         return 'Update Berhasil';

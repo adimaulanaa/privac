@@ -17,7 +17,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<CreateNotes>(_onCreate);
     on<UpdateNotes>(_onUpdate);
     on<UpdatePinNotes>(_onUpdatePin);
-    on<UpdatePassNotes>(_onUpdatePass);
+    on<UpdateSecurityNotes>(_onUpdatePass);
   }
 
   void _onDashboard(GetDashboard event, Emitter<DashboardState> emit) async {
@@ -64,14 +64,14 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     );
   }
   
-  void _onUpdatePass(UpdatePassNotes event, Emitter<DashboardState> emit) async {
-    emit(UpdatePassNotesLoading());
+  void _onUpdatePass(UpdateSecurityNotes event, Emitter<DashboardState> emit) async {
+    emit(UpdateSecutiryNotesLoading());
 
     final Either<Failure, String> result =
-        await _dashboardRepo.updatePassNotes(event.id, event.password);
+        await _dashboardRepo.updateSecurityNotes(event.save);
     result.fold(
-      (failure) => emit(UpdatePassNotesError(mapFailureToMessage(failure))),
-      (success) => emit(UpdatePassNotesSuccess(success)),
+      (failure) => emit(UpdateSecurityNotesError(mapFailureToMessage(failure))),
+      (success) => emit(UpdateSecurityNotesSuccess(success)),
     );
   }
 }

@@ -90,67 +90,69 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Column _bodyData(Size size, BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: size.height * 0.1),
-        Center(
-          child: Text(
-            StringResources.nameApp,
-            style: blackTextstyle.copyWith(
-              fontSize: 18,
-              fontWeight: medium,
+  SingleChildScrollView _bodyData(Size size, BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(height: size.height * 0.1),
+          Center(
+            child: Text(
+              StringResources.nameApp,
+              style: blackTextstyle.copyWith(
+                fontSize: 18,
+                fontWeight: medium,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: size.height * 0.05),
-        Center(
-          child: Text(
-            StringResources.welcome,
-            style: blackTextstyle.copyWith(
-              fontSize: 18,
-              fontWeight: medium,
+          SizedBox(height: size.height * 0.05),
+          Center(
+            child: Text(
+              StringResources.welcome,
+              style: blackTextstyle.copyWith(
+                fontSize: 18,
+                fontWeight: medium,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: size.height * 0.1),
-        isDataUser
-            ? Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10),
-                child: _login(size),
-              )
-            : Center(
-                child: InkWell(
-                  splashFactory: NoSplash.splashFactory,
-                  highlightColor: Colors.transparent,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      createRoute(
-                        const SiginUpProfile(),
+          SizedBox(height: size.height * 0.1),
+          isDataUser
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  child: _login(size),
+                )
+              : Center(
+                  child: InkWell(
+                    splashFactory: NoSplash.splashFactory,
+                    highlightColor: Colors.transparent,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        createRoute(
+                          const SiginUpProfile(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 200.w,
+                      height: 50.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.bgMain,
+                        borderRadius: BorderRadius.circular(22),
                       ),
-                    );
-                  },
-                  child: Container(
-                    width: 200.w,
-                    height: 50.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.bgMain,
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Setup Profile",
-                        style: whiteTextstyle.copyWith(
-                          fontSize: 20,
-                          fontWeight: semiBold,
+                      child: Center(
+                        child: Text(
+                          "Setup Profile",
+                          style: whiteTextstyle.copyWith(
+                            fontSize: 20,
+                            fontWeight: semiBold,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-      ],
+        ],
+      ),
     );
   }
 
