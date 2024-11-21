@@ -358,13 +358,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 },
                 style: blackTextstyle.copyWith(
                   fontSize: 15,
-                  fontWeight: medium,
+                  fontWeight: light,
                 ),
                 decoration: InputDecoration.collapsed(
                   hintText: 'Start typing...',
                   hintStyle: greyTextstyle.copyWith(
                     fontSize: 15,
-                    fontWeight: medium,
+                    fontWeight: light,
                   ),
                   border: InputBorder.none,
                 ),

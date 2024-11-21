@@ -77,11 +77,11 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
               context.showSuccesSnackBar(
                 state.success,
                 onNavigate: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => const DashboardScreen()),
-                  // );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardScreen()),
+                  );
                 }, // bottom close
               );
             }
@@ -157,13 +157,13 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                 },
                 style: blackTextstyle.copyWith(
                   fontSize: 15,
-                  fontWeight: medium,
+                  fontWeight: light,
                 ),
                 decoration: InputDecoration.collapsed(
                   hintText: 'Start typing...',
                   hintStyle: greyTextstyle.copyWith(
                     fontSize: 15,
-                    fontWeight: medium,
+                    fontWeight: light,
                   ),
                   border: InputBorder.none,
                 ),
