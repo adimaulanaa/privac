@@ -98,9 +98,10 @@ class UpdateSecurityNotesError extends DashboardState {
 
 class UpdateSecurityNotesSuccess extends DashboardState {
   final String success;
+  final int type;
 
-  const UpdateSecurityNotesSuccess(this.success);
+  const UpdateSecurityNotesSuccess(this.success, this.type);
 
   @override
-  List<Object> get props => [success];
+  List<Object> get props => [success, type];
 }

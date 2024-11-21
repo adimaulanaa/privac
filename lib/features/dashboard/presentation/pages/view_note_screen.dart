@@ -30,13 +30,16 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final passwordController = TextEditingController();
   String biomatricId = '';
   String faceId = '';
+  String tokens = '';
   bool isSaved = false;
   bool isPin = false;
   bool isPassword = false;
+  final ValueNotifier<bool> isTextPassword = ValueNotifier(false);
   bool isBiomatric = false;
   bool isFace = false;
   String username = '';
   int usernameId = 0;
+  int isTypeSecurity = 0;
   DateTime dates = DateTime.now();
   FocusNode titleFocus = FocusNode();
   FocusNode contentFocus = FocusNode();
@@ -138,7 +141,9 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
             }
           } else if (state is UpdateSecurityNotesSuccess) {
             if (state.success != '') {
-              isPassword = !isPassword;
+              if (state.type == 1) {
+                isPassword = true;
+              }
               context.showSuccesSnackBar(
                 state.success,
                 onNavigate: () {}, // bottom close
@@ -155,11 +160,9 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                     state is UpdatePinNotesLoading ||
                     state is UpdateSecutiryNotesLoading) ...[
                   Container(
-                    color: Colors.black
-                        .withOpacity(0.5), // Layar semi-transparan gelap
+                    color: Colors.black.withOpacity(0.5),
                   ),
-                  const UIDialogLoading(
-                      text: StringResources.loading), // Loading overlay
+                  const UIDialogLoading(text: StringResources.loading),
                 ],
               ],
             );
@@ -173,7 +176,6 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     return PopupMenuButton<String>(
       elevation: 9,
       onSelected: (value) {
-        String names = '';
         if (value == 'pin') {
           isPin = !isPin;
           if (isPin) {
@@ -185,32 +187,15 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 .read<DashboardBloc>()
                 .add(UpdatePinNotes(id: usernameId, pin: 0));
           }
-        } else if (value == 'password' ||
-            value == 'biomatric' ||
-            value == 'face') {
-          if (value == 'password') {
-            isPassword = true;
-            isBiomatric = false;
-            isFace = false;
-            biomatricId = '';
-            faceId = '';
-            names = 'Password';
-          } else if (value == 'biomatric') {
-            isPassword = false;
-            isBiomatric = true;
-            isFace = false;
+        } else if (value == 'password') {
+          if (isPassword) {
             passwordController.text = '';
-            faceId = '';
-            names = 'Biomatric';
-          } else if (value == 'face') {
             isPassword = false;
-            isBiomatric = false;
-            isFace = true;
-            biomatricId = '';
-            passwordController.text = '';
-            names = 'Face';
+            sendSaved(1);
+          } else {
+            isTypeSecurity = 1;
+            dialogPopupPassword();
           }
-          dialogPopupPassword(value, names);
         }
       },
       icon: Container(
@@ -386,7 +371,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     context.read<DashboardBloc>().add(UpdateNotes(saved));
   }
 
-  Future<void> dialogPopupPassword(String value, String name) {
+  Future<void> dialogPopupPassword() {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -402,7 +387,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
               children: [
                 SizedBox(height: 10.h),
                 Text(
-                  name,
+                  'Password',
                   textAlign: TextAlign.center,
                   style: blackTextstyle.copyWith(
                     fontSize: 14,
@@ -411,44 +396,49 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 ),
                 SizedBox(height: 10.h),
                 textInput(
-                  name,
+                  'Password',
                   0,
                   passwordController,
                   TextInputType.text,
                   [],
-                  onChanged: (value) {},
+                  onChanged: (value) {
+                    if (value != '') {
+                      isTextPassword.value = true;
+                    } else {
+                      isTextPassword.value = false;
+                    }
+                  },
                 ),
                 SizedBox(height: 10.h),
                 InkWell(
                   onTap: () {
+                    if (isTextPassword.value) {
                     Navigator.of(context).pop();
-                    UpdateSecurityModel save = UpdateSecurityModel(
-                      id: usernameId,
-                      password: passwordController.text,
-                      biomatricId: biomatricId,
-                      faceId: faceId,
-                      tokens: '',
-                    );
-                    context.read<DashboardBloc>().add(
-                          UpdateSecurityNotes(save: save),
-                        );
+                    sendSaved(1);
+                    }
                   },
-                  child: Container(
-                    height: 45.h,
-                    padding: const EdgeInsets.only(right: 10, left: 10),
-                    decoration: BoxDecoration(
-                      color: AppColors.bgMain,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Save',
-                        style: whiteTextstyle.copyWith(
-                          fontSize: 15,
-                          fontWeight: bold,
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: isTextPassword,
+                    builder: (context, isEnabled, child) {
+                      return Container(
+                        height: 45.h,
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        decoration: BoxDecoration(
+                          color:
+                              isEnabled ? AppColors.bgMain : AppColors.bgGrey,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                    ),
+                        child: Center(
+                          child: Text(
+                            'Save',
+                            style: whiteTextstyle.copyWith(
+                              fontSize: 15,
+                              fontWeight: bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 SizedBox(height: 20.h),
@@ -458,6 +448,23 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
         );
       },
     );
+  }
+
+  void sendSaved(int type) {
+    if (type == 1) {
+      biomatricId = '';
+      faceId = '';
+    }
+    UpdateSecurityModel save = UpdateSecurityModel(
+      id: usernameId,
+      password: passwordController.text,
+      biomatricId: biomatricId,
+      faceId: faceId,
+      tokens: tokens,
+    );
+    context
+        .read<DashboardBloc>()
+        .add(UpdateSecurityNotes(save: save, type: isTypeSecurity));
   }
 
   String formatDate(DateTime dateTime) {

@@ -46,9 +46,10 @@ class UpdatePinNotes extends DashboardEvent {
 
 class UpdateSecurityNotes extends DashboardEvent {
   final UpdateSecurityModel save;
+  final int type;
 
-  const UpdateSecurityNotes({required this.save});
+  const UpdateSecurityNotes({required this.save, required this.type});
 
   @override
-  List<Object> get props => [save];
+  List<Object> get props => [save, type];
 }

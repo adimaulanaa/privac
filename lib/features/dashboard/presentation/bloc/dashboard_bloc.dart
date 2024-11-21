@@ -71,7 +71,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         await _dashboardRepo.updateSecurityNotes(event.save);
     result.fold(
       (failure) => emit(UpdateSecurityNotesError(mapFailureToMessage(failure))),
-      (success) => emit(UpdateSecurityNotesSuccess(success)),
+      (success) => emit(UpdateSecurityNotesSuccess(success, event.type)),
     );
   }
 }
