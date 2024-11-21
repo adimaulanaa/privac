@@ -1,8 +1,9 @@
 class UpdateSecurityModel {
-  int? id;
+  String? id;
   String? password;
   String? biomatricId;
   String? faceId;
+  String? fingerprintId;
   String? tokens;
 
   UpdateSecurityModel({
@@ -10,6 +11,7 @@ class UpdateSecurityModel {
     this.password,
     this.biomatricId,
     this.faceId,
+    this.fingerprintId,
     this.tokens,
   });
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class NotesModel {
-  int? id;
+  String? id;
   String? title;
   String? content;
   int? isPin;
@@ -9,8 +9,9 @@ class NotesModel {
   String? password;
   String? biomatricId;
   String? faceId;
+  String? fingerprintId;
   String? tokens;
-  int? createdId;
+  String? createdId;
   DateTime? createdOn;
   String? createdBy;
   DateTime? updatedOn;
@@ -26,6 +27,7 @@ class NotesModel {
     this.password,
     this.biomatricId,
     this.faceId,
+    this.fingerprintId,
     this.tokens,
     this.createdId,
     this.createdOn,
@@ -47,6 +49,7 @@ class NotesModel {
       'password': password,
       'biomatric_id': biomatricId,
       'face_id': faceId,
+      'fingerprint_id': fingerprintId,
       'tokens': tokens,
       'created_id': createdId,
       'created_on': createdOn.toString(),
@@ -66,6 +69,7 @@ class NotesModel {
       password: map['password'] ?? '',
       biomatricId: map['biomatric_id'] ?? '',
       faceId: map['face_id'] ?? '',
+      fingerprintId: map['fingerprint_id'] ?? '',
       tokens: map['tokens'] ?? '',
       createdId: map['created_id'] ?? 0,
       createdOn: map['created_on'] != null ? DateTime.parse(map['created_on']) : null,
@@ -82,5 +86,5 @@ class NotesModel {
   // Implement toString to make it easier to see information about
   // each breed when using the print statement.
   @override
-  String toString() => 'notes(_id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, tokens: $tokens, created_id: $createdId, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
+  String toString() => 'notes(_id: $id, title: $title, content: $content, is_pin: $isPin, is_locked: $isLocked, password: $password, biomatric_id: $biomatricId, face_id: $faceId, fingerprint_id: $fingerprintId, tokens: $tokens, created_id: $createdId, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
 }

@@ -7,7 +7,7 @@ abstract class DashboardLocalSource {
   Future<String> createNotes(NotesModel data);
   Future<String> updateNotes(NotesModel data);
   Future<String> updateSecurityNotes(UpdateSecurityModel save);
-  Future<String> updatePinNotes(int id, int pin);
+  Future<String> updatePinNotes(String id, int pin);
   Future<List<NotesModel>> getDash();
 }
 
@@ -22,7 +22,7 @@ class DashboardLocalSourceImpl implements DashboardLocalSource {
 
   @override
   Future<String> createNotes(NotesModel data) async {
-    int usernameId = sharedPreferences.getInt('id') ?? 0;
+    String usernameId = sharedPreferences.getString('id') ?? '';
     String username = sharedPreferences.getString('username') ?? '';
     data.createdBy = username;
     data.updatedBy = username;
@@ -33,11 +33,11 @@ class DashboardLocalSourceImpl implements DashboardLocalSource {
 
   @override
   Future<List<NotesModel>> getDash() async {
-    int id = sharedPreferences.getInt('id') ?? 0;
+    String id = sharedPreferences.getString('id') ?? '';
     List<NotesModel> notes = [];
     List<NotesModel> get = await localDatabase.getAllNote();
     for (var e in get) {
-      if (e.password != '') {
+      if (e.password != '' || e.fingerprintId != '' || e.faceId != '') {
         e.isPassword = true;
       }
       if (e.createdId == id) {
@@ -67,7 +67,7 @@ class DashboardLocalSourceImpl implements DashboardLocalSource {
   }
   
   @override
-  Future<String> updatePinNotes(int id, int pin)  async {
+  Future<String> updatePinNotes(String id, int pin)  async {
     String username = sharedPreferences.getString('username') ?? '';
     String create = await localDatabase.updatePinNotes(id, pin, username);
     return create;

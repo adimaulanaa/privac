@@ -37,8 +37,8 @@ class ProfileLocalSourceImpl implements ProfileLocalSource {
     final DatabaseService database = DatabaseService();
     try {
       ProfileModel result = await database.login(data);
-      if (result.id != 0) {
-        await sharedPreferences.setInt('id', result.id!);
+      if (result.id != '') {
+        await sharedPreferences.setString('id', result.id!);
         await sharedPreferences.setString('name', result.name!);
         await sharedPreferences.setString('username', result.username!);
         message = 'Login berhasil';

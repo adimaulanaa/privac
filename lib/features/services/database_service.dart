@@ -4,12 +4,19 @@ import 'package:privac/features/dashboard/data/models/update_security_model.dart
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class DatabaseService {
   // Singleton pattern
   static final DatabaseService _databaseService = DatabaseService._internal();
   factory DatabaseService() => _databaseService;
   DatabaseService._internal();
+  final uuid = const Uuid();
+
+  // Membuat ID unik
+  String generateUniqueId() {
+    return uuid.v4(); // Versi 4 adalah UUID berbasis random
+  }
 
   static Database? _database;
   Future<Database> get database async {
@@ -42,10 +49,10 @@ class DatabaseService {
   Future<void> _onCreate(Database db, int version) async {
     // Run the CREATE {user} TABLE statement on the database.
     await db.execute(
-      'CREATE TABLE user(_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, tokens TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE user(_id TEXT PRIMARY KEY, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
     await db.execute(
-      'CREATE TABLE notes(_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, tokens TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE notes(_id TEXT PRIMARY KEY, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
   }
 
@@ -55,6 +62,7 @@ class DatabaseService {
     try {
       // Get a reference to the database.
       final db = await _databaseService.database;
+      dt.id = generateUniqueId();
 
       // Insert the ProfileSaveModel data into the 'user' table
       await db.insert(
@@ -129,6 +137,7 @@ class DatabaseService {
     try {
       // Get a reference to the database.
       final db = await _databaseService.database;
+      dt.id = generateUniqueId();
       await db.insert(
         'notes',
         dt.toMap(),
@@ -148,7 +157,7 @@ class DatabaseService {
     for (var e in result) {
       res.add(
         NotesModel(
-          id: int.parse(e['_id'].toString()),
+          id: e['_id'].toString(),
           title: e['title'].toString(),
           content: e['content'].toString(),
           isPin: int.parse(e['is_pin'].toString()),
@@ -156,8 +165,9 @@ class DatabaseService {
           password: e['password'].toString(),
           biomatricId: e['biomatric_id'].toString(),
           faceId: e['face_id'].toString(),
+          fingerprintId: e['fingerprint_id'].toString(),
           tokens: e['tokens'].toString(),
-          createdId: int.parse(e['created_id'].toString()),
+          createdId: e['created_id'].toString(),
           createdOn: DateTime.parse(e['created_on'].toString()),
           createdBy: e['created_by'].toString(),
           updatedOn: DateTime.parse(e['updated_on'].toString()),
@@ -187,7 +197,7 @@ class DatabaseService {
     }
   }
 
-  Future<String> updatePinNotes(int id, int pin, nameId) async {
+  Future<String> updatePinNotes(String id, int pin, nameId) async {
     try {
       final db = await database;
       final updatedData = <String, dynamic>{
@@ -217,6 +227,7 @@ class DatabaseService {
       final updatedData = <String, dynamic>{
         'password': save.password,
         'biomatric_id': save.biomatricId,
+        'fingerprint_id': save.fingerprintId,
         'face_id': save.faceId,
         'tokens': save.tokens,
         'updated_on': DateTime.now().toString(),

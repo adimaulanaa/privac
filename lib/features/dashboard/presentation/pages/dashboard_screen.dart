@@ -190,13 +190,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           SizedBox(height: size.height * 0.02),
           Expanded(
-            child: Wrap(
-              spacing: 10, // Jarak horizontal antar item
-              runSpacing: 10, // Jarak vertikal antar baris
-              children: List.generate(filterNotes.length, (index) {
-                return ListNotes(size: size, dt: filterNotes[index]);
-              }),
-            ),
+            child: filterNotes.isNotEmpty
+                ? Wrap(
+                    spacing: 10, // Jarak horizontal antar item
+                    runSpacing: 10, // Jarak vertikal antar baris
+                    children: List.generate(filterNotes.length, (index) {
+                      return ListNotes(size: size, dt: filterNotes[index]);
+                    }),
+                  )
+                : Center(
+                    child: Text(
+                      "Notes tidak tersedia",
+                      style: greyTextstyle.copyWith(
+                        fontSize: 20,
+                        fontWeight: semiBold,
+                      ),
+                    ),
+                  ),
           ),
         ],
       ),

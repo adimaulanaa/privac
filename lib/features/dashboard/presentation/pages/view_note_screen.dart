@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:privac/core/config/auth_local.dart';
 import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
@@ -30,15 +31,23 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final passwordController = TextEditingController();
   String biomatricId = '';
   String faceId = '';
+  String fingerprintId = '';
   String tokens = '';
+  bool isNoSecurity = false;
   bool isSaved = false;
   bool isPin = false;
   bool isPassword = false;
-  final ValueNotifier<bool> isTextPassword = ValueNotifier(false);
   bool isBiomatric = false;
+  bool isSupportBiomatric = false;
   bool isFace = false;
+  bool isSupportFace = false;
+  bool isFingerprint = false;
+  bool isSupportFingerprint = false;
+  bool _isAuthenticated = false;
+  final LocalAuthService _biometricAuth = LocalAuthService();
+  final ValueNotifier<bool> isTextPassword = ValueNotifier(false);
   String username = '';
-  int usernameId = 0;
+  String usernameId = '';
   int isTypeSecurity = 0;
   DateTime dates = DateTime.now();
   FocusNode titleFocus = FocusNode();
@@ -51,19 +60,23 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   void initState() {
     super.initState();
     notes = widget.note;
-    usernameId = notes.id ?? 0;
+    usernameId = notes.id ?? '';
     titleController.text = notes.title ?? '-';
     contentController.text = notes.content ?? '-';
     dates = notes.createdOn ?? DateTime.now();
-    if (usernameId != 0) {
+    if (usernameId != '') {
       isSaved = true;
     }
     if (notes.isPin == 1) {
       isPin = true;
     }
-    if (notes.isPassword) {
+    if (notes.password != '') {
       isPassword = true;
     }
+    if (notes.fingerprintId != '') {
+      isFingerprint = true;
+    }
+    loadAuthLocal();
   }
 
   @override
@@ -141,9 +154,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
             }
           } else if (state is UpdateSecurityNotesSuccess) {
             if (state.success != '') {
-              if (state.type == 1) {
-                isPassword = true;
-              }
+              setAfterAction(state.type);
               context.showSuccesSnackBar(
                 state.success,
                 onNavigate: () {}, // bottom close
@@ -189,12 +200,15 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           }
         } else if (value == 'password') {
           if (isPassword) {
-            passwordController.text = '';
-            isPassword = false;
-            sendSaved(1);
+            sendNoSecurity();
           } else {
-            isTypeSecurity = 1;
             dialogPopupPassword();
+          }
+        } else if (value == 'fingerprint') {
+          if (isFingerprint) {
+            sendNoSecurity();
+          } else {
+            _loginBiometric();
           }
         }
       },
@@ -222,14 +236,20 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           value: 'password',
           child: _textSetting('Password', isPassword),
         ),
-        PopupMenuItem(
-          value: 'biomatric',
-          child: _textSetting('Biomatric', isBiomatric),
-        ),
-        PopupMenuItem(
-          value: 'face',
-          child: _textSetting('Face', isFace),
-        ),
+        // if (isSupportBiomatric) PopupMenuItem(
+        //   value: 'biomatric',
+        //   child: _textSetting('Biomatric', isBiomatric),
+        // ),
+        if (isSupportFingerprint)
+          PopupMenuItem(
+            value: 'fingerprint',
+            child: _textSetting('Fingerprint', isFingerprint),
+          ),
+        if (isSupportFace)
+          PopupMenuItem(
+            value: 'face',
+            child: _textSetting('Face', isFace),
+          ),
       ],
     );
   }
@@ -413,8 +433,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 InkWell(
                   onTap: () {
                     if (isTextPassword.value) {
-                    Navigator.of(context).pop();
-                    sendSaved(1);
+                      Navigator.of(context).pop();
+                      sendSaved(1);
                     }
                   },
                   child: ValueListenableBuilder<bool>(
@@ -451,20 +471,72 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   }
 
   void sendSaved(int type) {
+    isNoSecurity = true;
     if (type == 1) {
+      isTypeSecurity = 1;
       biomatricId = '';
       faceId = '';
+      fingerprintId = '';
+      tokens = '';
+    } else if (type == 2) {
+      isTypeSecurity = 2;
+      fingerprintId = '1';
+      biomatricId = '';
+      faceId = '';
+      tokens = '';
+      passwordController.text = '';
     }
     UpdateSecurityModel save = UpdateSecurityModel(
       id: usernameId,
       password: passwordController.text,
       biomatricId: biomatricId,
       faceId: faceId,
+      fingerprintId: fingerprintId,
       tokens: tokens,
     );
     context
         .read<DashboardBloc>()
         .add(UpdateSecurityNotes(save: save, type: isTypeSecurity));
+  }
+
+  void sendNoSecurity() {
+    isPassword = false;
+    isBiomatric = false;
+    isFace = false;
+    isFingerprint = false;
+    isNoSecurity = false;
+    UpdateSecurityModel save = UpdateSecurityModel(
+      id: usernameId,
+      password: '',
+      biomatricId: '',
+      faceId: '',
+      fingerprintId: '',
+      tokens: '',
+    );
+    context
+        .read<DashboardBloc>()
+        .add(UpdateSecurityNotes(save: save, type: isTypeSecurity));
+  }
+
+  void setAfterAction(int type) {
+    if (isNoSecurity) {
+      if (type == 1) {
+        isPassword = true;
+        isBiomatric = false;
+        isFace = false;
+        isFingerprint = false;
+      } else if (type == 2) {
+        isFingerprint = true;
+        isPassword = false;
+        isBiomatric = false;
+        isFace = false;
+      }
+    } else {
+      isPassword = false;
+      isBiomatric = false;
+      isFace = false;
+      isFingerprint = false;
+    }
   }
 
   String formatDate(DateTime dateTime) {
@@ -474,5 +546,23 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     String formattedDate =
         DateFormat('EEEE, MMMM dd, yyyy HH:mm').format(dateTime);
     return formattedDate;
+  }
+
+  Future<void> _loginBiometric() async {
+    try {
+      _isAuthenticated = await _biometricAuth.authenticate();
+      if (_isAuthenticated) {
+        sendSaved(2);
+      }
+    } catch (error) {
+      // ignore: avoid_print
+      print("Error: $error");
+    }
+  }
+
+  void loadAuthLocal() async {
+    isSupportBiomatric = await LocalAuthService.isBiometricSupported();
+    isSupportFace = await LocalAuthService.isFaceIdSupported();
+    isSupportFingerprint = await LocalAuthService.isFingerprintSupported();
   }
 }

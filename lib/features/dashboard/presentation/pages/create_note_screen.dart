@@ -77,11 +77,11 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
               context.showSuccesSnackBar(
                 state.success,
                 onNavigate: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DashboardScreen()),
-                  );
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const DashboardScreen()),
+                  // );
                 }, // bottom close
               );
             }
@@ -183,6 +183,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
       isLocked: 0,
       biomatricId: '',
       faceId: '',
+      fingerprintId: '',
       tokens: '',
       password: '',
       createdOn: DateTime.now(),

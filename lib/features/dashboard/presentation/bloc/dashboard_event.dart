@@ -35,7 +35,7 @@ class UpdateNotes extends DashboardEvent {
 }
 
 class UpdatePinNotes extends DashboardEvent {
-  final int id;
+  final String id;
   final int pin;
 
   const UpdatePinNotes({required this.id, required this.pin});

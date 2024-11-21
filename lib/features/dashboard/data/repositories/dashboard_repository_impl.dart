@@ -51,7 +51,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
   }
   
   @override
-  Future<Either<Failure, String>> updatePinNotes(int id, int pin) async {
+  Future<Either<Failure, String>> updatePinNotes(String id, int pin) async {
     try {
       final result = await dataLocalSource.updatePinNotes(id, pin);
       return Right(result);
