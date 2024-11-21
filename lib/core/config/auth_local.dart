@@ -65,4 +65,20 @@ class LocalAuthService {
       return false;
     }
   }
+
+  /// Autentikasi menggunakan Face ID (jika tersedia)
+  Future<bool> authenticateWithFaceID() async {
+    try {
+      return await _auth.authenticate(
+        localizedReason: 'Please authenticate to proceed',
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          useErrorDialogs: true,
+          stickyAuth: true,
+        ),
+      );
+    } catch (e) {
+      return false;
+    }
+  }
 }

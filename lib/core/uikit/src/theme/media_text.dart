@@ -16,6 +16,8 @@ TextStyle greenTextstyle =
     const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgGreen);
 TextStyle orangeTextstyle =
     const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgOrange);
+TextStyle redTextstyle =
+    const TextStyle(fontFamily: 'Gilroy', color: AppColors.bgRed);
 
 // FontWeight
 FontWeight minlight = FontWeight.w200;

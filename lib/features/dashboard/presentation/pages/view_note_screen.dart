@@ -43,7 +43,6 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   bool isSupportFace = false;
   bool isFingerprint = false;
   bool isSupportFingerprint = false;
-  bool _isAuthenticated = false;
   final LocalAuthService _biometricAuth = LocalAuthService();
   final ValueNotifier<bool> isTextPassword = ValueNotifier(false);
   String username = '';
@@ -137,11 +136,11 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
               context.showSuccesSnackBar(
                 state.success,
                 onNavigate: () {
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => const DashboardScreen()),
-                  // );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardScreen()),
+                  );
                 }, // bottom close
               );
             }
@@ -208,7 +207,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           if (isFingerprint) {
             sendNoSecurity();
           } else {
-            _loginBiometric();
+            _useFingerprintId();
+          }
+        } else if (value == 'face') {
+          if (isFace) {
+            sendNoSecurity();
+          } else {
+            // _useFaceId();
           }
         }
       },
@@ -245,11 +250,11 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
             value: 'fingerprint',
             child: _textSetting('Fingerprint', isFingerprint),
           ),
-        if (isSupportFace)
-          PopupMenuItem(
-            value: 'face',
-            child: _textSetting('Face', isFace),
-          ),
+        // if (isSupportFace)
+        //   PopupMenuItem(
+        //     value: 'face',
+        //     child: _textSetting('Face', isFace),
+        //   ),
       ],
     );
   }
@@ -548,10 +553,10 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     return formattedDate;
   }
 
-  Future<void> _loginBiometric() async {
+  Future<void> _useFingerprintId() async {
     try {
-      _isAuthenticated = await _biometricAuth.authenticate();
-      if (_isAuthenticated) {
+      bool isAuthenticated = await _biometricAuth.authenticate();
+      if (isAuthenticated) {
         sendSaved(2);
       }
     } catch (error) {

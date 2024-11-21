@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:privac/core/config/auth_local.dart';
 import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
@@ -8,11 +9,13 @@ import 'package:privac/core/uikit/uikit.dart';
 import 'package:privac/core/utils/appbar.dart';
 import 'package:privac/core/utils/route_helpers.dart';
 import 'package:privac/core/utils/snackbar_extension.dart';
+import 'package:privac/core/utils/text_inputs.dart';
 import 'package:privac/features/dashboard/data/models/notes_model.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_state.dart';
 import 'package:privac/features/dashboard/presentation/pages/create_note_screen.dart';
+import 'package:privac/features/dashboard/presentation/pages/view_note_screen.dart';
 import 'package:privac/features/dashboard/presentation/widgets/list_notes.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -23,7 +26,10 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final LocalAuthService _biometricAuth = LocalAuthService();
   final searchController = TextEditingController();
+  final passwordController = TextEditingController();
+  final ValueNotifier<bool> isTextPassword = ValueNotifier(false);
   List<NotesModel> notes = [];
   List<NotesModel> filterNotes = [];
   @override
@@ -195,7 +201,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     spacing: 10, // Jarak horizontal antar item
                     runSpacing: 10, // Jarak vertikal antar baris
                     children: List.generate(filterNotes.length, (index) {
-                      return ListNotes(size: size, dt: filterNotes[index]);
+                      NotesModel dt = filterNotes[index];
+                      return InkWell(
+                          splashFactory: NoSplash.splashFactory,
+                          highlightColor: Colors.transparent,
+                          onTap: () {
+                            checkRoute(dt);
+                            // Navigator.push(
+                            //   context,
+                            //   createRoute(
+                            //     ViewNoteScreen(note: dt),
+                            //   ),
+                            // );
+                          },
+                          child: ListNotes(size: size, dt: filterNotes[index]));
                     }),
                   )
                 : Center(
@@ -213,6 +232,115 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void checkRoute(NotesModel dt) async {
+    String errorMessage = '';
+    if (dt.password != '') {
+      bool check = await dialogPopupPassword(context, dt.password!);
+      if (check) {
+        detailNote(dt);
+      } else {
+        passwordController.text = '';
+        errorMessage = 'Password Salah';
+      }
+    } else if (dt.fingerprintId != '') {
+      bool isAuthenticated = await _biometricAuth.authenticate();
+      if (isAuthenticated) {
+        detailNote(dt);
+      }
+    } else {
+      detailNote(dt);
+    }
+    if (errorMessage != '') {
+      // ignore: use_build_context_synchronously
+      context.showErrorSnackBar(
+        'Password Salah',
+        onNavigate: () {}, // bottom close
+      );
+    }
+  }
+
+  Future<bool> dialogPopupPassword(
+      BuildContext context, String password) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.of(context)
+                    .pop(false); // Tutup dialog dan kirim false
+              },
+              child: AlertDialog(
+                backgroundColor: AppColors.bgColor,
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 10.h),
+                    Text(
+                      'Password',
+                      textAlign: TextAlign.center,
+                      style: blackTextstyle.copyWith(
+                        fontSize: 14,
+                        fontWeight: light,
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
+                    textInput(
+                      'Password',
+                      0,
+                      passwordController,
+                      TextInputType.text,
+                      [],
+                      onChanged: (value) {
+                        isTextPassword.value = value.isNotEmpty;
+                      },
+                    ),
+                    SizedBox(height: 10.h),
+                    SizedBox(height: 10.h),
+                    InkWell(
+                      onTap: () {
+                        if (isTextPassword.value &&
+                            passwordController.text == password) {
+                          Navigator.of(context)
+                              .pop(true); // Kirim true saat sukses
+                        } else {
+                          Navigator.of(context).pop(false);
+                        }
+                      },
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: isTextPassword,
+                        builder: (context, isEnabled, child) {
+                          return Container(
+                            height: 45.h,
+                            padding: const EdgeInsets.only(right: 10, left: 10),
+                            decoration: BoxDecoration(
+                              color: isEnabled
+                                  ? AppColors.bgMain
+                                  : AppColors.bgGrey,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Save',
+                                style: whiteTextstyle.copyWith(
+                                  fontSize: 15,
+                                  fontWeight: bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+                  ],
+                ),
+              ),
+            );
+          },
+        ) ??
+        false; // Default ke false jika dialog ditutup tanpa input
+  }
+
   void search(String value) {
     final lowerCaseQuery = value.toLowerCase();
     setState(() {
@@ -222,5 +350,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return matchesQuery;
       }).toList();
     });
+  }
+
+  void detailNote(NotesModel dt) {
+    Navigator.push(
+      context,
+      createRoute(
+        ViewNoteScreen(note: dt),
+      ),
+    );
   }
 }
