@@ -173,15 +173,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // Ikon di kanan tetap ada
                 suffixIcon: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: SvgPicture.asset(
-                    MediaRes.dSearchRight,
-                    // ignore: deprecated_member_use
-                    color: AppColors.bgGrey,
-                    width: 20, // Sesuaikan ukuran ikon
+                  child: InkWell(
+                    splashFactory: NoSplash.splashFactory,
+                    highlightColor: Colors.transparent,
+                    onTap: () {
+                      searchController.text = '';
+                      search('');
+                    },
+                    child: SvgPicture.asset(
+                      MediaRes.dSearchRight,
+                      // ignore: deprecated_member_use
+                      color: AppColors.bgGrey,
+                      width: 20, // Sesuaikan ukuran ikon
+                    ),
                   ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                    vertical: 12.0, horizontal: 16.0),
+                    vertical: 12.0, horizontal: 14.0),
               ),
               onChanged: (value) {
                 search(value);
@@ -193,7 +201,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-
           SizedBox(height: size.height * 0.02),
           Expanded(
             child: filterNotes.isNotEmpty
