@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
+import 'package:privac/features/profile/data/models/security_profile_model.dart';
 
 abstract class ProfileState extends Equatable {
   const ProfileState();
@@ -14,14 +15,15 @@ class ProfileLoading extends ProfileState {}
 class CheckProfileLoading extends ProfileState {}
 class CreateProfileLoading extends ProfileState {}
 class LoginLoading extends ProfileState {}
+class SecurityLoading extends ProfileState {}
 
 class ProfileError extends ProfileState {
-  final String profile;
+  final String error;
 
-  const ProfileError(this.profile);
+  const ProfileError(this.error);
 
   @override
-  List<Object> get props => [profile];
+  List<Object> get props => [error];
 }
 
 class CheckProfileError extends ProfileState {
@@ -34,7 +36,7 @@ class CheckProfileError extends ProfileState {
 }
 
 class ProfileLoaded extends ProfileState {
-  final List<ProfileModel> data;
+  final ProfileModel data;
   const ProfileLoaded(this.data);
 
   @override
@@ -42,7 +44,7 @@ class ProfileLoaded extends ProfileState {
 }
 
 class CheckProfileLoaded extends ProfileState {
-  final bool check;
+  final SecurityLogin check;
   const CheckProfileLoaded(this.check);
 
   @override
@@ -80,6 +82,24 @@ class LoginSuccess extends ProfileState {
   final String success;
 
   const LoginSuccess(this.success);
+
+  @override
+  List<Object> get props => [success];
+}
+
+class SecurityError extends ProfileState {
+  final String error;
+
+  const SecurityError(this.error);
+
+  @override
+  List<Object> get props => [error];
+}
+
+class SecuritySuccess extends ProfileState {
+  final String success;
+
+  const SecuritySuccess(this.success);
 
   @override
   List<Object> get props => [success];

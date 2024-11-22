@@ -17,6 +17,7 @@ import 'package:privac/features/dashboard/presentation/bloc/dashboard_state.dart
 import 'package:privac/features/dashboard/presentation/pages/create_note_screen.dart';
 import 'package:privac/features/dashboard/presentation/pages/view_note_screen.dart';
 import 'package:privac/features/dashboard/presentation/widgets/list_notes.dart';
+import 'package:privac/features/profile/presentation/pages/profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -46,13 +47,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.bgGreySecond,
         toolbarHeight: 70,
-        leading: Container(
-          margin: const EdgeInsets.only(left: 10, top: 5),
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: AssetImage(MediaRes.logo),
-              fit: BoxFit.cover,
+        leading: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              createRoute(
+                const ProfileScreen(),
+              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(left: 10, top: 5),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: AssetImage(MediaRes.logo),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
@@ -214,12 +225,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           highlightColor: Colors.transparent,
                           onTap: () {
                             checkRoute(dt);
-                            // Navigator.push(
-                            //   context,
-                            //   createRoute(
-                            //     ViewNoteScreen(note: dt),
-                            //   ),
-                            // );
                           },
                           child: ListNotes(size: size, dt: filterNotes[index]));
                     }),

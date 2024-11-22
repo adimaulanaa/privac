@@ -13,7 +13,8 @@ import 'package:privac/features/profile/presentation/bloc/profile_state.dart';
 import 'package:privac/features/profile/presentation/pages/login_screen.dart';
 
 class SiginUpProfile extends StatefulWidget {
-  const SiginUpProfile({super.key});
+  final bool isAdmin;
+  const SiginUpProfile({super.key, required this.isAdmin});
 
   @override
   State<SiginUpProfile> createState() => _SiginUpProfileState();
@@ -150,13 +151,19 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
   }
 
   void _save() {
+    String isAdmin = '';
+    if (widget.isAdmin) {
+      isAdmin = '1';
+    }
     profile = ProfileModel(
       name: nameController.text,
       username: usernameController.text,
       password: passwordController.text,
       biomatricId: '',
       faceId: '',
+      fingerprintId: '',
       tokens: '',
+      isAdmin: isAdmin,
       createdOn: DateTime.now(),
       createdBy: 'ANONIMOUS',
       updatedOn: DateTime.now(),

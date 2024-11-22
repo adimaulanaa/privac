@@ -1,13 +1,16 @@
 import 'package:privac/core/error/failures.dart';
+import 'package:privac/features/profile/data/models/security_profile_model.dart';
 import 'package:privac/features/services/database_service.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ProfileLocalSource {
+  Future<ProfileModel> profile();
   Future<String> create(ProfileModel data);
-  Future<bool> check();
+  Future<SecurityLogin> check();
   Future<String> login(LoginModel data);
+  Future<String> security(SecurityProfileModel data);
 }
 
 class ProfileLocalSourceImpl implements ProfileLocalSource {
@@ -25,9 +28,14 @@ class ProfileLocalSourceImpl implements ProfileLocalSource {
   }
 
   @override
-  Future<bool> check() async {
+  Future<SecurityLogin> check() async {
     final DatabaseService database = DatabaseService();
-    bool check = await database.isUserTableEmpty();
+    bool user = await database.isUserTableEmpty();
+    int type = await database.getAdminUsers();
+    SecurityLogin check = SecurityLogin(
+      check: user,
+      isSecurity: type,
+    );
     return check;
   }
 
@@ -51,5 +59,22 @@ class ProfileLocalSourceImpl implements ProfileLocalSource {
       throw ServerFailure(message);
     }
     return message;
+  }
+  
+  @override
+  Future<ProfileModel> profile() async {
+    final DatabaseService database = DatabaseService();
+    String id = sharedPreferences.getString('id') ?? '';
+    ProfileModel data = await database.getUsers(id);
+    return data;
+  }
+  
+  @override
+  Future<String> security(SecurityProfileModel data) async {
+    final DatabaseService database = DatabaseService();
+    String id = sharedPreferences.getString('id') ?? '';
+    String username = sharedPreferences.getString('username') ?? '';
+    String dt = await database.updateSecurityProfile(id, username, data);
+    return dt;
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:privac/core/config/auth_local.dart';
 import 'package:privac/core/config/config_resources.dart';
 import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
@@ -23,6 +25,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool isDataUser = false;
+  int isSecurity = 0;
+  final LocalAuthService _biometricAuth = LocalAuthService();
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -55,16 +59,15 @@ class _LoginScreenState extends State<LoginScreen> {
               );
             }
           } else if (state is CheckProfileLoaded) {
-            isDataUser = state.check;
+            if (state.check.check == true) {
+              isDataUser = true;
+              isSecurity = state.check.isSecurity ?? 0;
+            }
           } else if (state is LoginSuccess) {
             context.showSuccesSnackBar(
               state.success,
               onNavigate: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardScreen()),
-                );
+                moveDash();
               }, // bottom close
             );
           }
@@ -118,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
           isDataUser
               ? Padding(
                   padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: _login(size),
+                  child: isSecurity == 1 ? _login(size) : _biomatric(),
                 )
               : Center(
                   child: InkWell(
@@ -128,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.push(
                         context,
                         createRoute(
-                          const SiginUpProfile(),
+                          const SiginUpProfile(isAdmin: true),
                         ),
                       );
                     },
@@ -152,6 +155,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
         ],
+      ),
+    );
+  }
+
+  InkWell _biomatric() {
+    return InkWell(
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        _useFingerprintId();
+      },
+      child: SvgPicture.asset(
+        MediaRes.pFingerprint,
+        width: 90.w,
+        height: 90.h,
+        // ignore: deprecated_member_use
+        color: AppColors.bgRed,
+        fit: BoxFit.cover,
       ),
     );
   }
@@ -205,11 +226,31 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       );
+
   void sendLogin() {
     login = LoginModel(
       username: usernameController.text,
       password: passwordController.text,
     );
     context.read<ProfileBloc>().add(LoginProfile(login));
+  }
+
+  Future<void> _useFingerprintId() async {
+    try {
+      bool isAuthenticated = await _biometricAuth.authenticate();
+      if (isAuthenticated) {
+        moveDash();
+      }
+    } catch (error) {
+      // ignore: avoid_print
+      print("Error: $error");
+    }
+  }
+
+  void moveDash() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const DashboardScreen()),
+    );
   }
 }

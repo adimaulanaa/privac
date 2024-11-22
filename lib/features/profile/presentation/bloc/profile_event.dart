@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
+import 'package:privac/features/profile/data/models/security_profile_model.dart';
 
 abstract class ProfileEvent extends Equatable {
   const ProfileEvent();
@@ -39,4 +40,13 @@ class LoginProfile extends ProfileEvent {
 
   @override
   List<Object> get props => [login];
+}
+
+class SecurityProfile extends ProfileEvent {
+  final SecurityProfileModel security;
+
+  const SecurityProfile(this.security);
+
+  @override
+  List<Object> get props => [security];
 }

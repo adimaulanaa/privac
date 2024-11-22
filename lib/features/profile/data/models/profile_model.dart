@@ -9,6 +9,7 @@ class ProfileModel {
   String? faceId;
   String? fingerprintId;
   String? tokens;
+  String? isAdmin;
   DateTime? createdOn;
   String? createdBy;
   DateTime? updatedOn;
@@ -23,6 +24,7 @@ class ProfileModel {
     this.faceId,
     this.fingerprintId,
     this.tokens,
+    this.isAdmin,
     this.createdOn,
     this.createdBy,
     this.updatedOn,
@@ -41,6 +43,7 @@ class ProfileModel {
       'face_id': faceId,
       'fingerprint_id': fingerprintId,
       'tokens': tokens,
+      'is_admin': isAdmin,
       'created_on': createdOn.toString(),
       'created_by': createdBy,
       'updated_on': updatedOn.toString(),
@@ -58,6 +61,7 @@ class ProfileModel {
       faceId: map['face_id'] ?? '',
       fingerprintId: map['fingerprint_id'] ?? '',
       tokens: map['tokens'] ?? '',
+      isAdmin: map['is_admin'] ?? '',
       createdOn: map['created_on'] != null ? DateTime.parse(map['created_on']) : null,
       createdBy: map['created_by'] ?? '',
       updatedOn: map['updated_on'] != null ? DateTime.parse(map['updated_on']) : null, 
@@ -72,5 +76,5 @@ class ProfileModel {
   // Implement toString to make it easier to see information about
   // each breed when using the print statement.
   @override
-  String toString() => 'user(_id: $id, name: $name, username: $username, password: $password, biomatric_id: $biomatricId, face_id: $faceId, fingerprint_id: $fingerprintId, tokens: $tokens, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
+  String toString() => 'user(_id: $id, name: $name, username: $username, password: $password, biomatric_id: $biomatricId, face_id: $faceId, fingerprint_id: $fingerprintId, tokens: $tokens, is_admin: $isAdmin, created_on: $createdOn, created_by: $createdBy, updated_on: $updatedOn, updated_by: $updatedBy)';
 }

@@ -9,6 +9,7 @@ class MediaRes {
   static const horizontal = '$_baseIcon/horizontal-dots.svg';
   static const vertical = '$_baseIcon/vertical-dots.svg';
   static const back = '$_baseIcon/back.svg';
+  static const logout = '$_baseIcon/log-out.svg';
   static const checklist = '$_baseIcon/is-checklist.svg';
   // static const error = '$_baseIcon/error.svg';
 
@@ -19,8 +20,9 @@ class MediaRes {
   static const dSearch = '$_baseIcon/search.svg';
   static const dSearchRight = '$_baseIcon/search-right.svg';
 
-    // ! Created Notes
-  // static const dPlus = '$_baseIcon/plus.svg';
+  // ! Created Notes
+  static const pLocked = '$_baseIcon/locked.svg';
+  static const pFingerprint = '$_baseIcon/fingerprint.svg';
 
 
 }

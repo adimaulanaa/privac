@@ -3,6 +3,7 @@ import 'package:privac/features/dashboard/data/models/notes_model.dart';
 import 'package:privac/features/dashboard/data/models/update_security_model.dart';
 import 'package:privac/features/profile/data/models/login_model.dart';
 import 'package:privac/features/profile/data/models/profile_model.dart';
+import 'package:privac/features/profile/data/models/security_profile_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
@@ -49,7 +50,7 @@ class DatabaseService {
   Future<void> _onCreate(Database db, int version) async {
     // Run the CREATE {user} TABLE statement on the database.
     await db.execute(
-      'CREATE TABLE user(_id TEXT PRIMARY KEY, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE user(_id TEXT PRIMARY KEY, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, is_admin TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
     await db.execute(
       'CREATE TABLE notes(_id TEXT PRIMARY KEY, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
@@ -79,16 +80,28 @@ class DatabaseService {
   // Fungsi untuk mengecek apakah tabel kosong atau tidak
   Future<bool> isUserTableEmpty() async {
     final db = await database;
-
-    // Menghitung jumlah baris dalam tabel user
-    // List<Map<String, Object?>> result =
-    //     await db.rawQuery('SELECT COUNT(*) FROM user');
     List<Map<String, Object?>> result =
         await db.rawQuery('SELECT COUNT(*) AS count FROM user');
-
-    // Ambil nilai dari kolom 'count' dan periksa apakah jumlahnya nol
     int count = Sqflite.firstIntValue(result) ?? 0;
     return count > 0;
+  }
+
+  // Fungsi untuk mengambil semua data user
+  Future<int> getAdminUsers() async {
+    final db = await database;
+    // Mengambil semua data user dari tabel
+    List<Map<String, Object?>> result = await db.query('user');
+    int res = 0;
+    for (var e in result) {
+      if (e['is_admin'] != '') {
+        if (e['password'] != '') {
+          res = 1;
+        } else if (e['fingerprint_id'] != '') {
+          res = 2;
+        }
+      }
+    }
+    return res;
   }
 
   // Fungsi untuk mengambil semua data user
@@ -105,15 +118,66 @@ class DatabaseService {
     return res;
   }
 
+  // Fungsi untuk mengambil semua data user
+  Future<ProfileModel> getUsers(String id) async {
+    final db = await database;
+    ProfileModel res = ProfileModel();
+    // Mengambil semua data user dari tabel
+    List<Map<String, Object?>> result = await db.query('user');
+    for (var e in result) {
+      if (e['_id'] == id) {
+        res.id = e['_id'].toString();
+        res.name = e['name'].toString();
+        res.username = e['username'].toString();
+        res.password = e['password'].toString();
+        res.biomatricId = e['biomatric_id'].toString();
+        res.faceId = e['face_id'].toString();
+        res.fingerprintId = e['fingerprint_id'].toString();
+        res.tokens = e['tokens'].toString();
+        res.isAdmin = e['is_admin'].toString();
+        res.createdBy = e['created_by'].toString();
+        res.createdOn = DateTime.parse(e['created_on'].toString());
+        res.updatedBy = e['updated_by'].toString();
+        res.updatedOn = DateTime.parse(e['updated_on'].toString());
+      }
+    }
+    return res;
+  }
+
+  Future<String> updateSecurityProfile(String id, nameId, SecurityProfileModel dt) async {
+    try {
+      final db = await database;
+      final updatedData = <String, dynamic>{
+        'password': dt.password,
+        'fingerprint_id': dt.fingerprint,
+        'updated_on': DateTime.now().toString(),
+        'updated_by': nameId,
+      };
+      final result = await db.update(
+        'user',
+        updatedData, // Hanya mengirim kolom yang ingin diperbarui
+        where: '_id = ?', // Kriteria pemilihan data berdasarkan id
+        whereArgs: [id], // Nilai untuk kriteria
+      );
+      if (result > 0) {
+        return 'Update Keamanan Berhasil';
+      } else {
+        return 'Update Keamanan Gagal';
+      }
+    } catch (e) {
+      return 'Error $e';
+    }
+  }
+
   // Fungsi untuk login
   Future<ProfileModel> login(LoginModel data) async {
     final db = await database;
     // Mengambil semua data user dari tabel
     List<Map<String, Object?>> result = await db.query(
       'user',
-      where: 'username = ? AND password = ?',
+      where: 'username = ? AND password = ? AND is_admin = ?',
       // Menyediakan username dan password untuk pencocokan
-      whereArgs: [data.username, data.password],
+      whereArgs: [data.username, data.password, true],
     );
     ProfileModel profile = ProfileModel();
     // Jika data ditemukan
