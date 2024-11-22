@@ -105,7 +105,7 @@ class DatabaseService {
   }
 
   // Fungsi untuk mengambil semua data user
-  Future<List<ProfileModel>> getAllUsers() async {
+  Future<List<ProfileModel>> getUsers() async {
     // final db = await database;
     // Mengambil semua data user dari tabel
     // List<Map<String, Object?>> result = await db.query('user');
@@ -119,32 +119,35 @@ class DatabaseService {
   }
 
   // Fungsi untuk mengambil semua data user
-  Future<ProfileModel> getUsers(String id) async {
+  Future<List<ProfileModel>> getAllUsers() async {
     final db = await database;
-    ProfileModel res = ProfileModel();
+    List<ProfileModel> list = [];
     // Mengambil semua data user dari tabel
     List<Map<String, Object?>> result = await db.query('user');
     for (var e in result) {
-      if (e['_id'] == id) {
-        res.id = e['_id'].toString();
-        res.name = e['name'].toString();
-        res.username = e['username'].toString();
-        res.password = e['password'].toString();
-        res.biomatricId = e['biomatric_id'].toString();
-        res.faceId = e['face_id'].toString();
-        res.fingerprintId = e['fingerprint_id'].toString();
-        res.tokens = e['tokens'].toString();
-        res.isAdmin = e['is_admin'].toString();
-        res.createdBy = e['created_by'].toString();
-        res.createdOn = DateTime.parse(e['created_on'].toString());
-        res.updatedBy = e['updated_by'].toString();
-        res.updatedOn = DateTime.parse(e['updated_on'].toString());
-      }
+      list.add(
+        ProfileModel(
+          id: e['_id'].toString(),
+          name: e['name'].toString(),
+          username: e['username'].toString(),
+          password: e['password'].toString(),
+          biomatricId: e['biomatric_id'].toString(),
+          faceId: e['face_id'].toString(),
+          fingerprintId: e['fingerprint_id'].toString(),
+          tokens: e['tokens'].toString(),
+          isAdmin: e['is_admin'].toString(),
+          createdBy: e['created_by'].toString(),
+          createdOn: DateTime.parse(e['created_on'].toString()),
+          updatedBy: e['updated_by'].toString(),
+          updatedOn: DateTime.parse(e['updated_on'].toString()),
+        ),
+      );
     }
-    return res;
+    return list;
   }
 
-  Future<String> updateSecurityProfile(String id, nameId, SecurityProfileModel dt) async {
+  Future<String> updateSecurityProfile(
+      String id, nameId, SecurityProfileModel dt) async {
     try {
       final db = await database;
       final updatedData = <String, dynamic>{
@@ -170,23 +173,23 @@ class DatabaseService {
   }
 
   // Fungsi untuk login
-  Future<ProfileModel> login(LoginModel data) async {
+  Future<List<ProfileModel>> login(LoginModel data) async {
     final db = await database;
     // Mengambil semua data user dari tabel
     List<Map<String, Object?>> result = await db.query(
       'user',
-      where: 'username = ? AND password = ? AND is_admin = ?',
+      where: 'username = ? AND password = ?',
       // Menyediakan username dan password untuk pencocokan
-      whereArgs: [data.username, data.password, true],
+      whereArgs: [data.username, data.password],
     );
-    ProfileModel profile = ProfileModel();
+    List<ProfileModel> profile = [];
     // Jika data ditemukan
     if (result.isNotEmpty) {
-      // Menyusun data hasil query ke dalam model Profile
-      Map<String, Object?> userData =
-          result.first; // Ambil data pertama yang ditemukan
-      profile = ProfileModel.fromMap(userData);
-
+      for (var e in result) {
+        Map<String, Object?> userData = e;
+        ProfileModel dt = ProfileModel.fromMap(userData);
+        profile.add(dt);
+      }
       // Mengembalikan data Profile
       return profile;
     } else {

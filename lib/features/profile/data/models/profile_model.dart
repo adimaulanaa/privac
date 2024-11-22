@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 class ProfileModel {
+  int? idx;
   String? id;
   String? name;
   String? username;
@@ -16,6 +17,7 @@ class ProfileModel {
   String? updatedBy;
 
   ProfileModel({
+    this.idx = 0,
     this.id,
     this.name,
     this.username,

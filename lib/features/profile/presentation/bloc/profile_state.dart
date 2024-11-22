@@ -36,7 +36,7 @@ class CheckProfileError extends ProfileState {
 }
 
 class ProfileLoaded extends ProfileState {
-  final ProfileModel data;
+  final List<ProfileModel> data;
   const ProfileLoaded(this.data);
 
   @override

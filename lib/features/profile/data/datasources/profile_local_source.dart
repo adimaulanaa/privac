@@ -6,7 +6,7 @@ import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ProfileLocalSource {
-  Future<ProfileModel> profile();
+  Future<List<ProfileModel>> profile();
   Future<String> create(ProfileModel data);
   Future<SecurityLogin> check();
   Future<String> login(LoginModel data);
@@ -44,31 +44,45 @@ class ProfileLocalSourceImpl implements ProfileLocalSource {
     String message = '';
     final DatabaseService database = DatabaseService();
     try {
-      ProfileModel result = await database.login(data);
-      if (result.id != '') {
-        await sharedPreferences.setString('id', result.id!);
-        await sharedPreferences.setString('name', result.name!);
-        await sharedPreferences.setString('username', result.username!);
-        message = 'Login berhasil';
-      } else {
-        message = 'Login gagal';
+      List<ProfileModel> result = await database.getAllUsers();
+      bool userFound = false;
+      for (var e in result) {
+        if (e.username == data.username) {
+          if (e.password == data.password) {
+            userFound = true; // Pengguna ditemukan
+            message = 'Login berhasil';
+            await sharedPreferences.setString('id', e.id!);
+            await sharedPreferences.setString('name', e.name!);
+            await sharedPreferences.setString('username', e.username!);
+          } else {
+            message = 'Password salah';
+          }
+          break; // Keluar dari loop setelah menemukan pengguna
+        } else {
+          message = 'User tidak ditemukan';
+        }
+      }
+      if (!userFound) {
         throw ServerFailure(message);
       }
+      return message;
     } catch (e) {
-      message = 'Login gagal: Terjadi kesalahan pada server';
+      if (e is ServerFailure) {
+        message = e.message;
+      } else {
+        message = 'Login gagal: Terjadi kesalahan pada server';
+      }
       throw ServerFailure(message);
     }
-    return message;
   }
-  
+
   @override
-  Future<ProfileModel> profile() async {
+  Future<List<ProfileModel>> profile() async {
     final DatabaseService database = DatabaseService();
-    String id = sharedPreferences.getString('id') ?? '';
-    ProfileModel data = await database.getUsers(id);
+    List<ProfileModel> data = await database.getAllUsers();
     return data;
   }
-  
+
   @override
   Future<String> security(SecurityProfileModel data) async {
     final DatabaseService database = DatabaseService();

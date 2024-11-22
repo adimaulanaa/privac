@@ -12,7 +12,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   ProfileRepositoryImpl({required this.dataLocalSource});
 
   @override
-  Future<Either<Failure, ProfileModel>> profile() async {
+  Future<Either<Failure, List<ProfileModel>>> profile() async {
     try {
       final result = await dataLocalSource.profile();
       return Right(result);

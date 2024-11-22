@@ -7,6 +7,7 @@ import 'package:privac/core/uikit/src/theme/media_colors.dart';
 import 'package:privac/core/uikit/src/theme/media_text.dart';
 import 'package:privac/core/uikit/uikit.dart';
 import 'package:privac/core/utils/appbar.dart';
+import 'package:privac/core/utils/route_helpers.dart';
 import 'package:privac/core/utils/snackbar_extension.dart';
 import 'package:privac/core/utils/text_inputs.dart';
 import 'package:privac/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -16,6 +17,8 @@ import 'package:privac/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_event.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_state.dart';
 import 'package:privac/features/profile/presentation/pages/login_screen.dart';
+import 'package:privac/features/profile/presentation/pages/signup_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -29,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   ProfileModel profile = ProfileModel();
+  List<ProfileModel> listProfile = [];
   final LocalAuthService _biometricAuth = LocalAuthService();
   final ValueNotifier<bool> isSecurity = ValueNotifier(false);
   final ValueNotifier<bool> isPassword = ValueNotifier(false);
@@ -76,10 +80,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             highlightColor: Colors.transparent,
             onTap: () {
               Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const LoginScreen()),
-                );
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
             },
             child: Container(
               width: 45,
@@ -117,8 +120,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }
           } else if (state is ProfileLoaded) {
-            if (state.data.id != '') {
-              profile = state.data;
+            if (state.data.isNotEmpty) {
+              listProfile = state.data;
               loadData();
             }
           } else if (state is SecuritySuccess) {
@@ -387,6 +390,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
+              SizedBox(height: size.height * 0.04),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'List Akun',
+                    style: blackTextstyle.copyWith(
+                      fontSize: 20,
+                      fontWeight: bold,
+                    ),
+                  ),
+                  InkWell(
+                    splashFactory: NoSplash.splashFactory,
+                    highlightColor: Colors.transparent,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        createRoute(
+                          const SiginUpProfile(isAdmin: false),
+                        ),
+                      );
+                    },
+                    child: SvgPicture.asset(
+                      MediaRes.dPlus,
+                      width: 20,
+                      height: 20,
+                      // ignore: deprecated_member_use
+                      color: AppColors.bgMain,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _list('No.', 'Nama', 'Admin', true),
+              const SizedBox(height: 5),
+              Container(
+                width: double.infinity, // Lebar layar penuh
+                height: 1, // Tinggi garis (ketebalan)
+                color: Colors.black, // Warna garis
+              ),
+              const SizedBox(height: 10),
+              Column(
+                children: listProfile.map((e) {
+                  return _list(e.idx.toString(), e.name, e.isAdmin, false);
+                }).toList(),
+              )
             ],
           ),
         ),
@@ -394,7 +444,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void loadData() {
+  Row _list(String no, name, admin, bool title) {
+    bool isAdmin = false;
+    if (admin == '1') {
+      isAdmin = true;
+    }
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Text(
+            title ? no : '$no.',
+            style: blackTextstyle.copyWith(
+              fontSize: 15,
+              fontWeight: light,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 7,
+          child: Text(
+            name,
+            style: blackTextstyle.copyWith(
+              fontSize: 15,
+              fontWeight: light,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Center(
+            child: title
+                ? Text(
+                    admin,
+                    style: blackTextstyle.copyWith(
+                      fontSize: 15,
+                      fontWeight: light,
+                    ),
+                  )
+                : isAdmin ? SvgPicture.asset(
+                    MediaRes.checklist,
+                    // ignore: deprecated_member_use
+                    color: AppColors.bgBlack,
+                    fit: BoxFit.contain,
+                  ) :const SizedBox.shrink(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String id = prefs.getString('id') ?? '';
+    int idx = 0;
+    for (var e in listProfile) {
+      idx += 1;
+      e.idx = idx;
+      if (e.id == id) {
+        profile = e;
+      }
+    }
     nameController.text = profile.name ?? '-';
     usernameController.text = profile.username ?? '-';
     password = profile.password ?? '-';

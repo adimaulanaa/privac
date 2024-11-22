@@ -10,6 +10,7 @@ class StringResources {
 
   //! Profile 
   static const String pCreate = "Daftar"; 
+  static const String pListUser = "List User"; 
 
 
 }

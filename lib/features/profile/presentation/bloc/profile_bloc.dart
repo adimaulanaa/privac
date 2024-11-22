@@ -24,7 +24,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   void _onProfile(GetProfile event, Emitter<ProfileState> emit) async {
     emit(ProfileLoading());
 
-    final Either<Failure, ProfileModel> result =
+    final Either<Failure, List<ProfileModel>> result =
         await _profileRepo.profile();
     result.fold(
       (failure) => emit(ProfileError(mapFailureToMessage(failure))),

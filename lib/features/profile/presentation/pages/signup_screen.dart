@@ -11,6 +11,7 @@ import 'package:privac/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_event.dart';
 import 'package:privac/features/profile/presentation/bloc/profile_state.dart';
 import 'package:privac/features/profile/presentation/pages/login_screen.dart';
+import 'package:privac/features/profile/presentation/pages/profile_screen.dart';
 
 class SiginUpProfile extends StatefulWidget {
   final bool isAdmin;
@@ -46,11 +47,19 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
               context.showSuccesSnackBar(
                 state.success,
                 onNavigate: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                  );
+                  if (widget.isAdmin) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginScreen()),
+                    );
+                  } else {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ProfileScreen()),
+                    );
+                  }
                 }, // bottom close
               );
             }

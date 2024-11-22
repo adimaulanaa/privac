@@ -7,7 +7,7 @@ import 'package:privac/features/profile/data/models/profile_model.dart';
 import 'package:privac/features/profile/data/models/security_profile_model.dart';
 
 abstract class ProfileRepository {
-  Future<Either<Failure, ProfileModel>> profile();
+  Future<Either<Failure, List<ProfileModel>>> profile();
   Future<Either<Failure, SecurityLogin>> check();
   Future<Either<Failure, String>> create(ProfileModel data);
   Future<Either<Failure, String>> login(LoginModel data);
