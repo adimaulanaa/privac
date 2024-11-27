@@ -84,20 +84,20 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
         ),
       ),
 
-      floatingActionButton: Container(
-        width: MediaQuery.of(context).size.width - 32,
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: AppColors.bgMain,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: InkWell(
-            splashFactory: NoSplash.splashFactory,
-            highlightColor: Colors.transparent,
-            onTap: () {
-              _save();
-            },
+      floatingActionButton: InkWell(
+        splashFactory: NoSplash.splashFactory,
+        highlightColor: Colors.transparent,
+        onTap: () {
+          _save();
+        },
+        child: Container(
+          width: MediaQuery.of(context).size.width - 32,
+          height: 50.h,
+          decoration: BoxDecoration(
+            color: AppColors.bgMain,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
             child: Text(
               'Save',
               style: whiteTextstyle.copyWith(

@@ -20,8 +20,9 @@ class MediaRes {
   static const dSearch = '$_baseIcon/search.svg';
   static const dSearchRight = '$_baseIcon/search-right.svg';
 
-  // ! Created Notes
+  // ! Profile
   static const pLocked = '$_baseIcon/locked.svg';
+  static const addUser = '$_baseIcon/user-add.svg';
   static const pFingerprint = '$_baseIcon/fingerprint.svg';
 
 

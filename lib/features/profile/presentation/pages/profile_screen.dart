@@ -40,10 +40,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ValueNotifier<bool> isFingerprint = ValueNotifier(false);
   String userId = '';
   String password = '';
+  bool isAdmin = false;
 
   @override
   void initState() {
     super.initState();
+    load();
+  }
+
+  void load() {
     context.read<ProfileBloc>().add(const GetProfile());
   }
 
@@ -253,143 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: size.height * 0.06),
-              Text(
-                'Keamanan Akun',
-                style: blackTextstyle.copyWith(
-                  fontSize: 20,
-                  fontWeight: bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        MediaRes.pLocked,
-                        width: 20,
-                        height: 20,
-                        // ignore: deprecated_member_use
-                        color: AppColors.bgBlack,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        'Password',
-                        style: blackTextstyle.copyWith(
-                          fontSize: 15,
-                          fontWeight: light,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 5),
-                  InkWell(
-                    splashFactory: NoSplash.splashFactory,
-                    highlightColor: Colors.transparent,
-                    onTap: () {
-                      // isPassword.value = !isPassword.value;
-                      if (!isPassword.value) {
-                        // securityProfile(false);
-                        dialogPopupPassword();
-                      }
-                    },
-                    child: ValueListenableBuilder<bool>(
-                      valueListenable: isPassword,
-                      builder: (context, isEnabled, child) {
-                        return Container(
-                          width: 40,
-                          height: 23,
-                          decoration: BoxDecoration(
-                            color: isEnabled ? AppColors.bgMain : Colors.grey,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Align(
-                            alignment: isEnabled
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
-                              width: 18,
-                              height: 18,
-                              margin: const EdgeInsets.symmetric(horizontal: 2),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        MediaRes.pFingerprint,
-                        width: 20,
-                        height: 20,
-                        // ignore: deprecated_member_use
-                        color: AppColors.bgBlack,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        'Fingerprint',
-                        style: blackTextstyle.copyWith(
-                          fontSize: 15,
-                          fontWeight: light,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 5),
-                  InkWell(
-                    splashFactory: NoSplash.splashFactory,
-                    highlightColor: Colors.transparent,
-                    onTap: () {
-                      // isFingerprint.value = !isFingerprint.value;
-                      if (!isFingerprint.value) {
-                        _useFingerprintId();
-                      }
-                    },
-                    child: ValueListenableBuilder<bool>(
-                      valueListenable: isFingerprint,
-                      builder: (context, isEnabled, child) {
-                        return Container(
-                          width: 40,
-                          height: 23,
-                          decoration: BoxDecoration(
-                            color: isEnabled ? AppColors.bgMain : Colors.grey,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Align(
-                            alignment: isEnabled
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
-                              width: 18,
-                              height: 18,
-                              margin: const EdgeInsets.symmetric(horizontal: 2),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              isAdmin ? _keamanan(size) : const SizedBox.shrink(),
               SizedBox(height: size.height * 0.04),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -413,9 +282,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                     child: SvgPicture.asset(
-                      MediaRes.dPlus,
-                      width: 20,
-                      height: 20,
+                      MediaRes.addUser,
+                      width: 25,
+                      height: 25,
                       // ignore: deprecated_member_use
                       color: AppColors.bgMain,
                       fit: BoxFit.contain,
@@ -424,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              _list('No.', 'Nama', 'Admin', true),
+              _title(),
               const SizedBox(height: 5),
               Container(
                 width: double.infinity, // Lebar layar penuh
@@ -434,7 +303,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 10),
               Column(
                 children: listProfile.map((e) {
-                  return _list(e.idx.toString(), e.name, e.isAdmin, false);
+                  return _list(e);
                 }).toList(),
               )
             ],
@@ -444,17 +313,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Row _list(String no, name, admin, bool title) {
-    bool isAdmin = false;
-    if (admin == '1') {
-      isAdmin = true;
-    }
+  Row _title() {
     return Row(
       children: [
         Expanded(
           flex: 1,
           child: Text(
-            title ? no : '$no.',
+            'No.',
             style: blackTextstyle.copyWith(
               fontSize: 15,
               fontWeight: light,
@@ -464,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Expanded(
           flex: 7,
           child: Text(
-            name,
+            'Nama',
             style: blackTextstyle.copyWith(
               fontSize: 15,
               fontWeight: light,
@@ -472,22 +337,230 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         Expanded(
-          flex: 2,
-          child: Center(
-            child: title
-                ? Text(
-                    admin,
-                    style: blackTextstyle.copyWith(
-                      fontSize: 15,
-                      fontWeight: light,
+          flex: 1,
+          child: Text(
+            'Aktif',
+            style: blackTextstyle.copyWith(
+              fontSize: 15,
+              fontWeight: light,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Text(
+            '',
+            style: blackTextstyle.copyWith(
+              fontSize: 15,
+              fontWeight: light,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _keamanan(Size size) {
+    return Column(
+      children: [
+        SizedBox(height: size.height * 0.06),
+        Text(
+          'Keamanan Akun',
+          style: blackTextstyle.copyWith(
+            fontSize: 20,
+            fontWeight: bold,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                SvgPicture.asset(
+                  MediaRes.pLocked,
+                  width: 20,
+                  height: 20,
+                  // ignore: deprecated_member_use
+                  color: AppColors.bgBlack,
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Password',
+                  style: blackTextstyle.copyWith(
+                    fontSize: 15,
+                    fontWeight: light,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 5),
+            InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                // isPassword.value = !isPassword.value;
+                if (!isPassword.value) {
+                  // securityProfile(false);
+                  dialogPopupPassword();
+                }
+              },
+              child: ValueListenableBuilder<bool>(
+                valueListenable: isPassword,
+                builder: (context, isEnabled, child) {
+                  return Container(
+                    width: 40,
+                    height: 23,
+                    decoration: BoxDecoration(
+                      color: isEnabled ? AppColors.bgMain : Colors.grey,
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                  )
-                : isAdmin ? SvgPicture.asset(
+                    child: Align(
+                      alignment: isEnabled
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                SvgPicture.asset(
+                  MediaRes.pFingerprint,
+                  width: 20,
+                  height: 20,
+                  // ignore: deprecated_member_use
+                  color: AppColors.bgBlack,
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Fingerprint',
+                  style: blackTextstyle.copyWith(
+                    fontSize: 15,
+                    fontWeight: light,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 5),
+            InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                // isFingerprint.value = !isFingerprint.value;
+                if (!isFingerprint.value) {
+                  _useFingerprintId();
+                }
+              },
+              child: ValueListenableBuilder<bool>(
+                valueListenable: isFingerprint,
+                builder: (context, isEnabled, child) {
+                  return Container(
+                    width: 40,
+                    height: 23,
+                    decoration: BoxDecoration(
+                      color: isEnabled ? AppColors.bgMain : Colors.grey,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Align(
+                      alignment: isEnabled
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Row _list(ProfileModel dt) {
+    bool isAdmin = false;
+    if (dt.isAdmin == '1') {
+      isAdmin = true;
+    }
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Text(
+            '${dt.idx}.',
+            style: blackTextstyle.copyWith(
+              fontSize: 15,
+              fontWeight: light,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 7,
+          child: Text(
+            dt.name.toString(),
+            maxLines: 1,
+            textAlign: TextAlign.left,
+            overflow: TextOverflow.ellipsis,
+            style: blackTextstyle.copyWith(
+              fontSize: 15,
+              fontWeight: light,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Center(
+            child: isAdmin
+                ? SvgPicture.asset(
                     MediaRes.checklist,
                     // ignore: deprecated_member_use
                     color: AppColors.bgBlack,
                     fit: BoxFit.contain,
-                  ) :const SizedBox.shrink(),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: InkWell(
+            splashFactory: NoSplash.splashFactory,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              chengeUser(dt);
+            },
+            child: SvgPicture.asset(
+              MediaRes.logout,
+              // ignore: deprecated_member_use
+              color: AppColors.bgBlue,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ],
@@ -505,6 +578,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         profile = e;
       }
     }
+    isAdmin = profile.isAdmin != '' ? true : false;
     nameController.text = profile.name ?? '-';
     usernameController.text = profile.username ?? '-';
     password = profile.password ?? '-';
@@ -516,6 +590,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isSecurity.value = true;
       isFingerprint.value = true;
     }
+  }
+
+  void chengeUser(ProfileModel dt) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('id', dt.id!);
+    await prefs.setString('name', dt.name!);
+    await prefs.setString('username', dt.username!);
+    load();
   }
 
   void securityProfile(bool type) {
