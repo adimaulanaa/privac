@@ -62,6 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
             if (state.check.check == true) {
               isDataUser = true;
               isSecurity = state.check.isSecurity ?? 0;
+              print(isSecurity);
             }
           } else if (state is LoginSuccess) {
             context.showSuccesSnackBar(
@@ -121,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
           isDataUser
               ? Padding(
                   padding: const EdgeInsets.only(left: 10, right: 10),
-                  child: isSecurity == 1 ? _login(size) : _biomatric(),
+                  child: _login(size),
                 )
               : Center(
                   child: InkWell(
@@ -166,13 +167,16 @@ class _LoginScreenState extends State<LoginScreen> {
       onTap: () {
         _useFingerprintId();
       },
-      child: SvgPicture.asset(
-        MediaRes.pFingerprint,
-        width: 90.w,
-        height: 90.h,
-        // ignore: deprecated_member_use
-        color: AppColors.bgRed,
-        fit: BoxFit.cover,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: SvgPicture.asset(
+          MediaRes.pFingerprint,
+          width: 60.w,
+          height: 60.h,
+          // ignore: deprecated_member_use
+          color: AppColors.bgRed,
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
@@ -200,29 +204,36 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           ),
           SizedBox(height: size.height * 0.1),
-          InkWell(
-            splashFactory: NoSplash.splashFactory,
-            highlightColor: Colors.transparent,
-            onTap: () {
-              sendLogin();
-            },
-            child: Container(
-              width: 200.w,
-              height: 50.h,
-              decoration: BoxDecoration(
-                color: AppColors.bgMain,
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Center(
-                child: Text(
-                  "Login",
-                  style: whiteTextstyle.copyWith(
-                    fontSize: 20,
-                    fontWeight: semiBold,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                splashFactory: NoSplash.splashFactory,
+                highlightColor: Colors.transparent,
+                onTap: () {
+                  sendLogin();
+                },
+                child: Container(
+                  width: 200.w,
+                  height: 50.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.bgMain,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Login",
+                      style: whiteTextstyle.copyWith(
+                        fontSize: 20,
+                        fontWeight: semiBold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              isSecurity == 2 ? _biomatric() : const SizedBox.shrink()
+            ],
           ),
         ],
       );

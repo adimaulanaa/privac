@@ -37,9 +37,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ValueNotifier<bool> isSecurity = ValueNotifier(false);
   final ValueNotifier<bool> isPassword = ValueNotifier(false);
   final ValueNotifier<bool> isTextPassword = ValueNotifier(false);
+  final ValueNotifier<bool> isCheckPassword = ValueNotifier(false);
   final ValueNotifier<bool> isFingerprint = ValueNotifier(false);
   String userId = '';
   String password = '';
+  String checkChangePassword = '';
   bool isAdmin = false;
 
   @override
@@ -506,7 +508,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Row _list(ProfileModel dt) {
     bool isAdmin = false;
-    if (dt.isAdmin == '1') {
+    if (dt.createdBy == '') {
       isAdmin = true;
     }
     return Row(
@@ -552,8 +554,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: InkWell(
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
-            onTap: () {
-              chengeUser(dt);
+            onTap: () async {
+              if (isAdmin) {
+                if (dt.password != '') {
+                  bool check = await checkPassword(context, dt.password!);
+                  if (check && checkChangePassword == dt.password) {
+                    passwordController.text = '';
+                    chengeUser(dt);
+                  } else {
+                    showError('Password Salah!');
+                  }
+                } else if (dt.fingerprintId != '') {
+                  bool isAuthenticated = await _biometricAuth.authenticate();
+                  if (isAuthenticated) {
+                    chengeUser(dt);
+                  }
+                }
+                // print('admin');
+              } else {
+                chengeUser(dt);
+              }
             },
             child: SvgPicture.asset(
               MediaRes.logout,
@@ -585,10 +605,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (profile.password != '') {
       isSecurity.value = false;
       isPassword.value = true;
+      isFingerprint.value = false;
     }
     if (profile.fingerprintId != '') {
       isSecurity.value = true;
       isFingerprint.value = true;
+      isPassword.value = false;
     }
   }
 
@@ -605,7 +627,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String finger = '';
     if (type) {
       finger = '1';
-      pass = '';
+      pass = password;
       isSecurity.value = true;
     } else {
       finger = '';
@@ -719,6 +741,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
+    );
+  }
+
+  Future<bool> checkPassword(BuildContext context, String pass) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return GestureDetector(
+          onTap: () {
+            // Mengembalikan `false` jika dialog ditutup tanpa aksi
+            Navigator.of(context).pop(false);
+          },
+          child: AlertDialog(
+            backgroundColor: AppColors.bgColor, // Warna background abu-abu
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 10.h),
+                Text(
+                  'Password',
+                  textAlign: TextAlign.center,
+                  style: blackTextstyle.copyWith(
+                    fontSize: 14,
+                    fontWeight: light,
+                  ),
+                ),
+                SizedBox(height: 10.h),
+                textInput(
+                  'Password',
+                  0,
+                  passwordController,
+                  TextInputType.text,
+                  [],
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      isCheckPassword.value = true;
+                      checkChangePassword = value;
+                    } else {
+                      isCheckPassword.value = false;
+                    }
+                  },
+                ),
+                SizedBox(height: 10.h),
+                ValueListenableBuilder<bool>(
+                  valueListenable: isCheckPassword,
+                  builder: (context, isEnabled, child) {
+                    return InkWell(
+                      onTap: () {
+                        if (isCheckPassword.value) {
+                          // Mengembalikan `true` jika tombol Save ditekan
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: Container(
+                        height: 45.h,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color:
+                              isEnabled ? AppColors.bgMain : AppColors.bgGrey,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Save',
+                            style: whiteTextstyle.copyWith(
+                              fontSize: 15,
+                              fontWeight: bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: 20.h),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((value) => value ?? false); // Jika `null`, kembalikan `false`
+  }
+
+  void showError(String message) {
+    context.showErrorSnackBar(
+      message,
+      onNavigate: () {}, // bottom close
     );
   }
 }

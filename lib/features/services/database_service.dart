@@ -96,7 +96,8 @@ class DatabaseService {
       if (e['is_admin'] != '') {
         if (e['password'] != '') {
           res = 1;
-        } else if (e['fingerprint_id'] != '') {
+        }
+        if (e['fingerprint_id'] != '') {
           res = 2;
         }
       }

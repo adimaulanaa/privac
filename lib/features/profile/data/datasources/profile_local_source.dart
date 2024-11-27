@@ -23,6 +23,12 @@ class ProfileLocalSourceImpl implements ProfileLocalSource {
   @override
   Future<String> create(ProfileModel data) async {
     final DatabaseService database = DatabaseService();
+    String id = sharedPreferences.getString('id') ?? '';
+    String username = sharedPreferences.getString('username') ?? '';
+    if (id != '') {
+      data.createdBy = username;
+      data.updatedBy = username;
+    }
     String create = await database.insertUser(data);
     return create;
   }

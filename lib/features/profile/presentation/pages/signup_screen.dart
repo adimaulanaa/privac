@@ -174,9 +174,9 @@ class _SiginUpProfileState extends State<SiginUpProfile> {
       tokens: '',
       isAdmin: isAdmin,
       createdOn: DateTime.now(),
-      createdBy: 'ANONIMOUS',
+      createdBy: '',
       updatedOn: DateTime.now(),
-      updatedBy: 'ANONIMOUS',
+      updatedBy: '',
     );
     context.read<ProfileBloc>().add(CreateProfile(profile));
   }
