@@ -53,7 +53,7 @@ class DatabaseService {
       'CREATE TABLE user(_id TEXT PRIMARY KEY, name TEXT, username TEXT, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, is_admin TEXT, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
     await db.execute(
-      'CREATE TABLE notes(_id TEXT PRIMARY KEY, title TEXT, content TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
+      'CREATE TABLE notes(_id TEXT PRIMARY KEY, title TEXT, content TEXT, images TEXT, label_id INTEGER, label_name TEXT, is_pin INTEGER, is_locked INTEGER, password TEXT, biomatric_id TEXT, face_id TEXT, fingerprint_id TEXT, tokens TEXT, created_id INTEGER, created_on TEXT, created_by TEXT, updated_on TEXT, updated_by TEXT)',
     );
   }
 
@@ -228,6 +228,9 @@ class DatabaseService {
           id: e['_id'].toString(),
           title: e['title'].toString(),
           content: e['content'].toString(),
+          images: e['images'].toString(),
+          labelName: e['label_name'].toString(),
+          labelId: int.parse(e['label_id'].toString()),
           isPin: int.parse(e['is_pin'].toString()),
           isLocked: int.parse(e['is_locked'].toString()),
           password: e['password'].toString(),
@@ -317,7 +320,7 @@ class DatabaseService {
     }
   }
 
-  deleteNotes(int id) async {
+  deleteNotes(String id) async {
     final db = await database;
     await db.delete('Notes', where: '_id = ?', whereArgs: [id]);
   }

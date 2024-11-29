@@ -16,6 +16,7 @@ import 'package:privac/features/dashboard/presentation/bloc/dashboard_bloc.dart'
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart';
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_state.dart';
 import 'package:privac/features/dashboard/presentation/pages/dashboard_screen.dart';
+import 'package:privac/features/dashboard/presentation/widgets/view_note_widget.dart';
 
 class ViewNoteScreen extends StatefulWidget {
   final NotesModel note;
@@ -43,6 +44,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   bool isSupportFace = false;
   bool isFingerprint = false;
   bool isSupportFingerprint = false;
+  bool isMenu = true;
   final LocalAuthService _biometricAuth = LocalAuthService();
   final ValueNotifier<bool> isTextPassword = ValueNotifier(false);
   String username = '';
@@ -131,6 +133,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 onNavigate: () {}, // bottom close
               );
             }
+          } else if (state is DeleteNotesError) {
+            if (state.error != '') {
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
+            }
           } else if (state is UpdateNotesSuccess) {
             if (state.success != '') {
               context.showSuccesSnackBar(
@@ -159,6 +168,19 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 onNavigate: () {}, // bottom close
               );
             }
+          } else if (state is DeleteNotesSuccess) {
+            if (state.success != '') {
+              context.showSuccesSnackBar(
+                state.success,
+                onNavigate: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardScreen()),
+                  );
+                }, // bottom close
+              );
+            }
           }
         },
         child: BlocBuilder<DashboardBloc, DashboardState>(
@@ -168,7 +190,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 _bodyData(size, context), // Latar belakang utama
                 if (state is UpdateNotesLoading ||
                     state is UpdatePinNotesLoading ||
-                    state is UpdateSecutiryNotesLoading) ...[
+                    state is UpdateSecutiryNotesLoading ||
+                    state is DeleteNotesLoading) ...[
                   Container(
                     color: Colors.black.withOpacity(0.5),
                   ),
@@ -179,6 +202,283 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           },
         ),
       ),
+      floatingActionButton:
+          isMenu ? _menuFloating(context) : const SizedBox.shrink(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Container _menuFloating(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Container(
+      width: MediaQuery.of(context).size.width - 50,
+      height: 55.h,
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.only(left: 20, right: 20),
+      decoration: BoxDecoration(
+        color: AppColors.bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {},
+              child: viewSvg(MediaRes.vOther),
+            ),
+            InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {},
+              child: viewSvg(MediaRes.vOther),
+            ),
+            InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {},
+              child: viewSvg(MediaRes.vOther),
+            ),
+            InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {},
+              child: viewSvg(MediaRes.vOther),
+            ),
+            InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                showOtherMenu(context, size);
+              },
+              child: viewSvg(MediaRes.vOther),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<dynamic> showOtherMenu(BuildContext context, Size size) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: size.width,
+                height: size.height * 0.56,
+                decoration: BoxDecoration(
+                  color: AppColors.bgColor,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            InkWell(
+                              onTap: () {},
+                              child: IconRowMenu(
+                                  size: size,
+                                  text: 'Image',
+                                  img: MediaRes.vOther),
+                            ),
+                            InkWell(
+                              onTap: () {},
+                              child: IconRowMenu(
+                                  size: size,
+                                  text: 'Voice',
+                                  img: MediaRes.vOther),
+                            ),
+                            InkWell(
+                              onTap: () {},
+                              child: IconRowMenu(
+                                  size: size,
+                                  text: 'Share',
+                                  img: MediaRes.vOther),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    dividers(),
+                    5.verticalSpace,
+                    InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        isPin = !isPin;
+                        Navigator.of(context).pop();
+                        if (isPin) {
+                          context
+                              .read<DashboardBloc>()
+                              .add(UpdatePinNotes(id: usernameId, pin: 1));
+                        } else {
+                          context
+                              .read<DashboardBloc>()
+                              .add(UpdatePinNotes(id: usernameId, pin: 0));
+                        }
+                      },
+                      child: ViewListOther(
+                        text: 'Pin',
+                        img: MediaRes.dPin,
+                        colors: AppColors.bgBlack,
+                      ),
+                    ),
+                    5.verticalSpace,
+                    dividers(),
+                    5.verticalSpace,
+                    InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        //
+                      },
+                      child: ViewListOther(
+                        text: 'Add Thumbnail',
+                        img: MediaRes.vThumbnail,
+                        colors: AppColors.bgBlack,
+                      ),
+                    ),
+                    5.verticalSpace,
+                    dividers(),
+                    5.verticalSpace,
+                    InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        //
+                      },
+                      child: ViewListOther(
+                        text: 'Label',
+                        img: MediaRes.vLabel,
+                        colors: AppColors.bgBlack,
+                      ),
+                    ),
+                    5.verticalSpace,
+                    dividers(),
+                    5.verticalSpace,
+                    InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        //
+                      },
+                      child: ViewListOther(
+                        text: 'Share',
+                        img: MediaRes.dPin,
+                        colors: AppColors.bgBlack,
+                      ),
+                    ),
+                    5.verticalSpace,
+                    dividers(),
+                    5.verticalSpace,
+                    InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        //
+                      },
+                      child: ViewListOther(
+                        text: 'Make a Copy',
+                        img: MediaRes.vCopy,
+                        colors: AppColors.bgBlack,
+                      ),
+                    ),
+                    5.verticalSpace,
+                    dividers(),
+                    5.verticalSpace,
+                    InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        //
+                      },
+                      child: ViewListOther(
+                        text: 'Lock Note',
+                        img: MediaRes.dLock,
+                        colors: AppColors.bgBlack,
+                      ),
+                    ),
+                    5.verticalSpace,
+                    dividers(),
+                    5.verticalSpace,
+                    InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
+                      onTap: () {
+                        if (usernameId != '') {
+                          context
+                              .read<DashboardBloc>()
+                              .add(DeleteNotes(id: usernameId));
+                        }
+                      },
+                      child: ViewListOther(
+                        text: 'Delete Note',
+                        img: MediaRes.delete,
+                        colors: AppColors.bgRed,
+                      ),
+                    ),
+                    5.verticalSpace,
+                    dividers(),
+                    5.verticalSpace,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25, right: 25),
+                      child: Text(
+                        'Last Edit ${formatDate(dates)} By ${notes.createdBy}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: greyTextstyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: light,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: -15.0,
+                left: size.width * 0.41,
+                child: SvgPicture.asset(
+                  MediaRes.line,
+                  // ignore: deprecated_member_use
+                  color: AppColors.bgColor,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Divider dividers() {
+    return const Divider(
+      color: AppColors.bgGreySecond, // Warna garis
+      thickness: 1.5, // Ketebalan garis
+    );
+  }
+
+  SvgPicture viewSvg(String img) {
+    return SvgPicture.asset(
+      img,
+      // ignore: deprecated_member_use
+      color: AppColors.bgBlack,
+      fit: BoxFit.cover,
     );
   }
 

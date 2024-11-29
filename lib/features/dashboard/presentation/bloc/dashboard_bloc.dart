@@ -18,6 +18,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<UpdateNotes>(_onUpdate);
     on<UpdatePinNotes>(_onUpdatePin);
     on<UpdateSecurityNotes>(_onUpdatePass);
+    on<DeleteNotes>(_onDeleteNote);
   }
 
   void _onDashboard(GetDashboard event, Emitter<DashboardState> emit) async {
@@ -72,6 +73,17 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     result.fold(
       (failure) => emit(UpdateSecurityNotesError(mapFailureToMessage(failure))),
       (success) => emit(UpdateSecurityNotesSuccess(success, event.type)),
+    );
+  }
+
+  void _onDeleteNote(DeleteNotes event, Emitter<DashboardState> emit) async {
+    emit(DeleteNotesLoading());
+
+    final Either<Failure, String> result =
+        await _dashboardRepo.deleteNotes(event.id);
+    result.fold(
+      (failure) => emit(DeleteNotesError(mapFailureToMessage(failure))),
+      (success) => emit(DeleteNotesSuccess(success)),
     );
   }
 }

@@ -179,6 +179,9 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
     notes = NotesModel(
       title: titleController.text,
       content: contentController.text,
+      images: '',
+      labelName: '',
+      labelId: 0,
       isPin: 0,
       isLocked: 0,
       biomatricId: '',

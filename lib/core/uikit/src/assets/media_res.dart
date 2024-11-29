@@ -11,6 +11,8 @@ class MediaRes {
   static const back = '$_baseIcon/back.svg';
   static const logout = '$_baseIcon/log-out.svg';
   static const checklist = '$_baseIcon/is-checklist.svg';
+  static const line = '$_baseIcon/line.svg';
+  static const delete = '$_baseIcon/delete.svg';
   // static const error = '$_baseIcon/error.svg';
 
   // ! Dashboard
@@ -25,5 +27,11 @@ class MediaRes {
   static const addUser = '$_baseIcon/user-add.svg';
   static const pFingerprint = '$_baseIcon/fingerprint.svg';
 
+  // ! View Note
+  static const vOther = '$_baseIcon/other.svg';
+  static const vThumbnail = '$_baseIcon/thumbnail.svg';
+  static const vLabel = '$_baseIcon/label.svg';
+  static const vForwad = '$_baseIcon/forward.svg';
+  static const vCopy = '$_baseIcon/copy.svg';
 
 }

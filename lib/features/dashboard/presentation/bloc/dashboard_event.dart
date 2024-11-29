@@ -53,3 +53,12 @@ class UpdateSecurityNotes extends DashboardEvent {
   @override
   List<Object> get props => [save, type];
 }
+
+class DeleteNotes extends DashboardEvent {
+  final String id;
+
+  const DeleteNotes({required this.id});
+
+  @override
+  List<Object> get props => [id];
+}

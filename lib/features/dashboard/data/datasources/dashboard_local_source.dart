@@ -8,6 +8,7 @@ abstract class DashboardLocalSource {
   Future<String> updateNotes(NotesModel data);
   Future<String> updateSecurityNotes(UpdateSecurityModel save);
   Future<String> updatePinNotes(String id, int pin);
+  Future<String> deleteNotes(String id);
   Future<List<NotesModel>> getDash();
 }
 
@@ -71,5 +72,11 @@ class DashboardLocalSourceImpl implements DashboardLocalSource {
     String username = sharedPreferences.getString('username') ?? '';
     String create = await localDatabase.updatePinNotes(id, pin, username);
     return create;
+  }
+  
+  @override
+  Future<String> deleteNotes(String id) async {
+    String delete = await localDatabase.deleteNotes(id);
+    return delete;
   }
 }

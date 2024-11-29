@@ -11,4 +11,5 @@ abstract class DashboardRepository {
   Future<Either<Failure, String>> updateNotes(NotesModel data);
   Future<Either<Failure, String>> updatePinNotes(String id, int pin);
   Future<Either<Failure, String>> updateSecurityNotes(UpdateSecurityModel save);
+  Future<Either<Failure, String>> deleteNotes(String id);
 }
