@@ -320,8 +320,27 @@ class DatabaseService {
     }
   }
 
-  deleteNotes(String id) async {
+  Future<String> deleteNotes(String id) async {
     final db = await database;
-    await db.delete('Notes', where: '_id = ?', whereArgs: [id]);
+
+    // Query untuk memastikan data ada
+    List<Map<String, Object?>> result = await db.query(
+      'notes',
+      where: '_id = ?',
+      whereArgs: [id], // Tidak perlu konversi karena _id sudah TEXT
+    );
+
+    if (result.isEmpty) {
+      return 'Data not found'; // Data tidak ditemukan
+    }
+
+    // Jika data ditemukan, hapus
+    await db.delete(
+      'notes',
+      where: '_id = ?',
+      whereArgs: [id], // Hapus berdasarkan _id
+    );
+
+    return 'Deleted successfully';
   }
 }

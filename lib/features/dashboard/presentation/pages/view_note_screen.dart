@@ -31,6 +31,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final contentController = TextEditingController();
   final passwordController = TextEditingController();
   String biomatricId = '';
+  String passwordId = '';
   String faceId = '';
   String fingerprintId = '';
   String tokens = '';
@@ -73,9 +74,11 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     }
     if (notes.password != '') {
       isPassword = true;
+      passwordId = notes.password.toString();
     }
     if (notes.fingerprintId != '') {
       isFingerprint = true;
+      fingerprintId = notes.fingerprintId.toString();
     }
     loadAuthLocal();
   }
@@ -99,7 +102,6 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           },
         ),
         actions: [
-          _toggleSetting(),
           IconSaveAppbar(
             onTap: () {
               if (titleController.text.isNotEmpty &&
@@ -119,6 +121,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 onNavigate: () {}, // bottom close
               );
             }
+          } else if (state is CreateNotesError) {
+            if (state.error != '') {
+              context.showErrorSnackBar(
+                state.error,
+                onNavigate: () {}, // bottom close
+              );
+            }
           } else if (state is UpdatePinNotesError) {
             if (state.error != '') {
               context.showErrorSnackBar(
@@ -128,6 +137,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
             }
           } else if (state is UpdateSecurityNotesError) {
             if (state.error != '') {
+              passwordController.text = '';
               context.showErrorSnackBar(
                 state.error,
                 onNavigate: () {}, // bottom close
@@ -181,6 +191,13 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 }, // bottom close
               );
             }
+          } else if (state is CreateNotesSuccess) {
+            if (state.success != '') {
+              context.showSuccesSnackBar(
+                state.success,
+                onNavigate: () {}, // bottom close
+              );
+            }
           }
         },
         child: BlocBuilder<DashboardBloc, DashboardState>(
@@ -191,7 +208,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                 if (state is UpdateNotesLoading ||
                     state is UpdatePinNotesLoading ||
                     state is UpdateSecutiryNotesLoading ||
-                    state is DeleteNotesLoading) ...[
+                    state is DeleteNotesLoading ||
+                    state is CreateNotesLoading) ...[
                   Container(
                     color: Colors.black.withOpacity(0.5),
                   ),
@@ -205,6 +223,87 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
       floatingActionButton:
           isMenu ? _menuFloating(context) : const SizedBox.shrink(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Padding _bodyData(Size size, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // SizedBox(height: size.height * 0.05),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              focusNode: titleFocus,
+              autofocus: true,
+              controller: titleController,
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              onSubmitted: (text) {
+                titleFocus.unfocus();
+                FocusScope.of(context).requestFocus(contentFocus);
+              },
+              onChanged: (value) {
+                // markTitleAsDirty(value);
+              },
+              textInputAction: TextInputAction.next,
+              style: blackTextstyle.copyWith(
+                fontSize: 25,
+                fontWeight: bold,
+              ),
+              decoration: InputDecoration.collapsed(
+                hintText: 'Enter a title',
+                hintStyle: greyTextstyle.copyWith(
+                  fontSize: 25,
+                  fontWeight: bold,
+                ),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 15, bottom: 15),
+            child: Text(
+              formatDate(dates),
+              maxLines: 1,
+              textAlign: TextAlign.left,
+              overflow: TextOverflow.ellipsis,
+              style: greyTextstyle.copyWith(
+                fontSize: 12,
+                fontWeight: light,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                focusNode: contentFocus,
+                controller: contentController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                onChanged: (value) {
+                  // markContentAsDirty(value);
+                },
+                style: blackTextstyle.copyWith(
+                  fontSize: 15,
+                  fontWeight: light,
+                ),
+                decoration: InputDecoration.collapsed(
+                  hintText: 'Start typing...',
+                  hintStyle: greyTextstyle.copyWith(
+                    fontSize: 15,
+                    fontWeight: light,
+                  ),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -332,7 +431,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                         }
                       },
                       child: ViewListOther(
-                        text: 'Pin',
+                        text: isPin ? 'Unpin' : 'Pin',
                         img: MediaRes.dPin,
                         colors: AppColors.bgBlack,
                       ),
@@ -389,7 +488,8 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                       splashFactory: NoSplash.splashFactory,
                       highlightColor: Colors.transparent,
                       onTap: () {
-                        //
+                        Navigator.of(context).pop();
+                        _makeCopy();
                       },
                       child: ViewListOther(
                         text: 'Make a Copy',
@@ -404,10 +504,17 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                       splashFactory: NoSplash.splashFactory,
                       highlightColor: Colors.transparent,
                       onTap: () {
-                        //
+                        Navigator.of(context).pop();
+                        if (isSupportFingerprint) {
+                          popupSelectSecurity();
+                        } else {
+                          dialogPopupPassword();
+                        }
                       },
                       child: ViewListOther(
-                        text: 'Lock Note',
+                        text: isPassword || isFingerprint
+                            ? 'Unlock Note'
+                            : 'Lock Note',
                         img: MediaRes.dLock,
                         colors: AppColors.bgBlack,
                       ),
@@ -419,6 +526,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                       splashFactory: NoSplash.splashFactory,
                       highlightColor: Colors.transparent,
                       onTap: () {
+                        Navigator.of(context).pop();
                         if (usernameId != '') {
                           context
                               .read<DashboardBloc>()
@@ -466,216 +574,6 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     );
   }
 
-  Divider dividers() {
-    return const Divider(
-      color: AppColors.bgGreySecond, // Warna garis
-      thickness: 1.5, // Ketebalan garis
-    );
-  }
-
-  SvgPicture viewSvg(String img) {
-    return SvgPicture.asset(
-      img,
-      // ignore: deprecated_member_use
-      color: AppColors.bgBlack,
-      fit: BoxFit.cover,
-    );
-  }
-
-  PopupMenuButton<String> _toggleSetting() {
-    return PopupMenuButton<String>(
-      elevation: 9,
-      onSelected: (value) {
-        if (value == 'pin') {
-          isPin = !isPin;
-          if (isPin) {
-            context
-                .read<DashboardBloc>()
-                .add(UpdatePinNotes(id: usernameId, pin: 1));
-          } else {
-            context
-                .read<DashboardBloc>()
-                .add(UpdatePinNotes(id: usernameId, pin: 0));
-          }
-        } else if (value == 'password') {
-          if (isPassword) {
-            sendNoSecurity();
-          } else {
-            dialogPopupPassword();
-          }
-        } else if (value == 'fingerprint') {
-          if (isFingerprint) {
-            sendNoSecurity();
-          } else {
-            _useFingerprintId();
-          }
-        } else if (value == 'face') {
-          if (isFace) {
-            sendNoSecurity();
-          } else {
-            // _useFaceId();
-          }
-        }
-      },
-      icon: Container(
-        width: 42,
-        height: 42,
-        padding: const EdgeInsets.all(9),
-        decoration: const BoxDecoration(
-          color: AppColors.bgColor,
-          shape: BoxShape.circle,
-        ),
-        child: SvgPicture.asset(
-          MediaRes.horizontal,
-          // ignore: deprecated_member_use
-          color: AppColors.bgBlack,
-          fit: BoxFit.cover,
-        ),
-      ),
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'pin',
-          child: _textSetting('Pin', isPin),
-        ),
-        PopupMenuItem(
-          value: 'password',
-          child: _textSetting('Password', isPassword),
-        ),
-        // if (isSupportBiomatric) PopupMenuItem(
-        //   value: 'biomatric',
-        //   child: _textSetting('Biomatric', isBiomatric),
-        // ),
-        if (isSupportFingerprint)
-          PopupMenuItem(
-            value: 'fingerprint',
-            child: _textSetting('Fingerprint', isFingerprint),
-          ),
-        // if (isSupportFace)
-        //   PopupMenuItem(
-        //     value: 'face',
-        //     child: _textSetting('Face', isFace),
-        //   ),
-      ],
-    );
-  }
-
-  Row _textSetting(String text, bool isOn) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          text,
-          style: blackTextstyle.copyWith(
-            fontSize: 12,
-            fontWeight: light,
-          ),
-        ),
-        const SizedBox(width: 5),
-        Container(
-          width: 40,
-          height: 23,
-          decoration: BoxDecoration(
-            color: isOn ? AppColors.bgMain : Colors.grey,
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Align(
-            alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
-            child: Container(
-              width: 18,
-              height: 18,
-              margin: const EdgeInsets.symmetric(horizontal: 2),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Padding _bodyData(Size size, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // SizedBox(height: size.height * 0.05),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              focusNode: titleFocus,
-              autofocus: true,
-              controller: titleController,
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              onSubmitted: (text) {
-                titleFocus.unfocus();
-                FocusScope.of(context).requestFocus(contentFocus);
-              },
-              onChanged: (value) {
-                // markTitleAsDirty(value);
-              },
-              textInputAction: TextInputAction.next,
-              style: blackTextstyle.copyWith(
-                fontSize: 25,
-                fontWeight: bold,
-              ),
-              decoration: InputDecoration.collapsed(
-                hintText: 'Enter a title',
-                hintStyle: greyTextstyle.copyWith(
-                  fontSize: 25,
-                  fontWeight: bold,
-                ),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 15, bottom: 15),
-            child: Text(
-              formatDate(dates),
-              maxLines: 1,
-              textAlign: TextAlign.left,
-              overflow: TextOverflow.ellipsis,
-              style: greyTextstyle.copyWith(
-                fontSize: 12,
-                fontWeight: light,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                focusNode: contentFocus,
-                controller: contentController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                onChanged: (value) {
-                  // markContentAsDirty(value);
-                },
-                style: blackTextstyle.copyWith(
-                  fontSize: 15,
-                  fontWeight: light,
-                ),
-                decoration: InputDecoration.collapsed(
-                  hintText: 'Start typing...',
-                  hintStyle: greyTextstyle.copyWith(
-                    fontSize: 15,
-                    fontWeight: light,
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _save() {
     saved = NotesModel(
       id: notes.id,
@@ -694,6 +592,28 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
       updatedBy: notes.updatedBy,
     );
     context.read<DashboardBloc>().add(UpdateNotes(saved));
+  }
+
+  void _makeCopy() {
+    NotesModel copyNotes = NotesModel(
+      title: '${titleController.text} Copy',
+      content: contentController.text,
+      images: '',
+      labelName: '',
+      labelId: 0,
+      isPin: 0,
+      isLocked: 0,
+      biomatricId: '',
+      faceId: '',
+      fingerprintId: '',
+      tokens: '',
+      password: '',
+      createdOn: DateTime.now(),
+      createdBy: '',
+      updatedOn: DateTime.now(),
+      updatedBy: '',
+    );
+    context.read<DashboardBloc>().add(CreateNotes(copyNotes));
   }
 
   Future<void> dialogPopupPassword() {
@@ -739,7 +659,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
                   onTap: () {
                     if (isTextPassword.value) {
                       Navigator.of(context).pop();
-                      sendSaved(1);
+                      sendSecurity(1, true);
                     }
                   },
                   child: ValueListenableBuilder<bool>(
@@ -775,25 +695,86 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     );
   }
 
-  void sendSaved(int type) {
+  Future<void> popupSelectSecurity() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          // ignore: deprecated_member_use
+          child: AlertDialog(
+            backgroundColor: AppColors.bgColor, // Warna background abu-abu
+            content: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    if (isPassword) {
+                      sendUnSecurity(1);
+                    } else {
+                      dialogPopupPassword();
+                    }
+                  },
+                  child: Container(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      height: MediaQuery.of(context).size.width * 0.2,
+                      decoration: BoxDecoration(
+                        // color: backgroundColor,
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: viewSvg(MediaRes.pLocked)),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    if (isPassword) {
+                      sendUnSecurity(2);
+                    } else {
+                      _useFingerprintId();
+                    }
+                  },
+                  child: Container(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      height: MediaQuery.of(context).size.width * 0.2,
+                      decoration: BoxDecoration(
+                        // color: backgroundColor,
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: viewSvg(MediaRes.pFingerprint)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void sendUnSecurity(int type) {
     isNoSecurity = true;
     if (type == 1) {
-      isTypeSecurity = 1;
-      biomatricId = '';
-      faceId = '';
-      fingerprintId = '';
-      tokens = '';
+      isTypeSecurity = type;
+      passwordId = '';
     } else if (type == 2) {
-      isTypeSecurity = 2;
-      fingerprintId = '1';
-      biomatricId = '';
-      faceId = '';
-      tokens = '';
-      passwordController.text = '';
+      isTypeSecurity = type;
+      fingerprintId = '';
     }
     UpdateSecurityModel save = UpdateSecurityModel(
       id: usernameId,
-      password: passwordController.text,
+      password: passwordId,
       biomatricId: biomatricId,
       faceId: faceId,
       fingerprintId: fingerprintId,
@@ -804,19 +785,32 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
         .add(UpdateSecurityNotes(save: save, type: isTypeSecurity));
   }
 
-  void sendNoSecurity() {
+  void sendSecurity(int type, bool isActive) {
     isPassword = false;
     isBiomatric = false;
     isFace = false;
     isFingerprint = false;
     isNoSecurity = false;
+    if (type == 1) {
+      if (isActive) {
+        passwordId = passwordController.text;
+      } else {
+        passwordId = '';
+      }
+    } else if (type == 2) {
+      if (isActive) {
+        fingerprintId = '1';
+      } else {
+        passwordId = '';
+      }
+    }
     UpdateSecurityModel save = UpdateSecurityModel(
       id: usernameId,
-      password: '',
-      biomatricId: '',
-      faceId: '',
-      fingerprintId: '',
-      tokens: '',
+      password: passwordId,
+      biomatricId: biomatricId,
+      faceId: faceId,
+      fingerprintId: fingerprintId,
+      tokens: tokens,
     );
     context
         .read<DashboardBloc>()
@@ -824,24 +818,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   }
 
   void setAfterAction(int type) {
-    if (isNoSecurity) {
-      if (type == 1) {
-        isPassword = true;
-        isBiomatric = false;
-        isFace = false;
-        isFingerprint = false;
-      } else if (type == 2) {
-        isFingerprint = true;
-        isPassword = false;
-        isBiomatric = false;
-        isFace = false;
-      }
-    } else {
-      isPassword = false;
-      isBiomatric = false;
-      isFace = false;
-      isFingerprint = false;
-    }
+    passwordController.text = '';
   }
 
   String formatDate(DateTime dateTime) {
@@ -857,7 +834,7 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     try {
       bool isAuthenticated = await _biometricAuth.authenticate();
       if (isAuthenticated) {
-        sendSaved(2);
+        sendSecurity(2, true);
       }
     } catch (error) {
       // ignore: avoid_print

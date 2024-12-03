@@ -105,3 +105,19 @@ class ViewListOther extends StatelessWidget {
     );
   }
 }
+
+Divider dividers() {
+  return const Divider(
+    color: AppColors.bgGreySecond, // Warna garis
+    thickness: 1.5, // Ketebalan garis
+  );
+}
+
+SvgPicture viewSvg(String img) {
+  return SvgPicture.asset(
+    img,
+    // ignore: deprecated_member_use
+    color: AppColors.bgBlack,
+    fit: BoxFit.cover,
+  );
+}

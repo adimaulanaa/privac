@@ -62,7 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
             if (state.check.check == true) {
               isDataUser = true;
               isSecurity = state.check.isSecurity ?? 0;
-              print(isSecurity);
             }
           } else if (state is LoginSuccess) {
             context.showSuccesSnackBar(
