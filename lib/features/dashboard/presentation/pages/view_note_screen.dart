@@ -327,25 +327,27 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
               splashFactory: NoSplash.splashFactory,
               highlightColor: Colors.transparent,
               onTap: () {},
-              child: viewSvg(MediaRes.vOther),
+              child: viewSvg(MediaRes.vPen),
             ),
             InkWell(
               splashFactory: NoSplash.splashFactory,
               highlightColor: Colors.transparent,
               onTap: () {},
-              child: viewSvg(MediaRes.vOther),
+              child: viewSvg(MediaRes.vFinish),
             ),
             InkWell(
               splashFactory: NoSplash.splashFactory,
               highlightColor: Colors.transparent,
               onTap: () {},
-              child: viewSvg(MediaRes.vOther),
+              child: viewSvg(MediaRes.vTables),
             ),
             InkWell(
               splashFactory: NoSplash.splashFactory,
               highlightColor: Colors.transparent,
-              onTap: () {},
-              child: viewSvg(MediaRes.vOther),
+              onTap: () {
+                showTextMenu(context, size);
+              },
+              child: viewSvg(MediaRes.vText),
             ),
             InkWell(
               splashFactory: NoSplash.splashFactory,
@@ -358,6 +360,58 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<dynamic> showTextMenu(BuildContext context, Size size) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: size.width,
+                height: size.height * 0.4,
+                decoration: BoxDecoration(
+                  color: AppColors.bgColor,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25, right: 25),
+                      child: Text(
+                        'Last Edit ${formatDate(dates)} By ${notes.createdBy}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: greyTextstyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: light,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: -15.0,
+                left: size.width * 0.41,
+                child: SvgPicture.asset(
+                  MediaRes.line,
+                  // ignore: deprecated_member_use
+                  color: AppColors.bgColor,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

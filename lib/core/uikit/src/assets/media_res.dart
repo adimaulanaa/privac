@@ -28,6 +28,10 @@ class MediaRes {
   static const pFingerprint = '$_baseIcon/fingerprint.svg';
 
   // ! View Note
+  static const vPen = '$_baseIcon/pen.svg';
+  static const vFinish = '$_baseIcon/finish.svg';
+  static const vTables = '$_baseIcon/tables.svg';
+  static const vText = '$_baseIcon/text.svg';
   static const vOther = '$_baseIcon/other.svg';
   static const vThumbnail = '$_baseIcon/thumbnail.svg';
   static const vLabel = '$_baseIcon/label.svg';
