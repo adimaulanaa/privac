@@ -17,6 +17,8 @@ import 'package:privac/features/dashboard/presentation/bloc/dashboard_event.dart
 import 'package:privac/features/dashboard/presentation/bloc/dashboard_state.dart';
 import 'package:privac/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:privac/features/dashboard/presentation/widgets/view_note_widget.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class ViewNoteScreen extends StatefulWidget {
   final NotesModel note;
@@ -28,8 +30,10 @@ class ViewNoteScreen extends StatefulWidget {
 
 class _ViewNoteScreenState extends State<ViewNoteScreen> {
   final titleController = TextEditingController();
-  final contentController = TextEditingController();
+  // final contentController = TextEditingController();
   final passwordController = TextEditingController();
+  // final QuillController _controller = QuillController.basic();
+  late quill.QuillController _controller;
   String biomatricId = '';
   String passwordId = '';
   String faceId = '';
@@ -64,7 +68,11 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
     notes = widget.note;
     usernameId = notes.id ?? '';
     titleController.text = notes.title ?? '-';
-    contentController.text = notes.content ?? '-';
+    // contentController.text = notes.content ?? '-';
+    _controller = quill.QuillController(
+      document: quill.Document()..insert(0, notes.content ?? '-'),
+      selection: const TextSelection.collapsed(offset: 0),
+    );
     dates = notes.createdOn ?? DateTime.now();
     if (usernameId != '') {
       isSaved = true;
@@ -104,8 +112,9 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
         actions: [
           IconSaveAppbar(
             onTap: () {
+              String contentText = _controller.document.toPlainText();
               if (titleController.text.isNotEmpty &&
-                  contentController.text.isNotEmpty) {
+                  contentText.isNotEmpty) {
                 _save();
               }
             },
@@ -278,29 +287,54 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                focusNode: contentFocus,
-                controller: contentController,
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                onChanged: (value) {
-                  // markContentAsDirty(value);
-                },
-                style: blackTextstyle.copyWith(
-                  fontSize: 15,
-                  fontWeight: light,
-                ),
-                decoration: InputDecoration.collapsed(
-                  hintText: 'Start typing...',
-                  hintStyle: greyTextstyle.copyWith(
-                    fontSize: 15,
-                    fontWeight: light,
-                  ),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
+                padding: const EdgeInsets.all(16.0),
+                // child: TextField(
+                //   focusNode: contentFocus,
+                //   controller: contentController,
+                //   keyboardType: TextInputType.multiline,
+                //   maxLines: null,
+                //   onChanged: (value) {
+                //     // markContentAsDirty(value);
+                //   },
+                //   style: blackTextstyle.copyWith(
+                //     fontSize: 15,
+                //     fontWeight: light,
+                //   ),
+                //   decoration: InputDecoration.collapsed(
+                //     hintText: 'Start typing...',
+                //     hintStyle: greyTextstyle.copyWith(
+                //       fontSize: 15,
+                //       fontWeight: light,
+                //     ),
+                //     border: InputBorder.none,
+                //   ),
+                // ),
+                child: Column(
+                  children: [
+                    // Visibility(
+                    //   visible: true,
+                    //   child: QuillSimpleToolbar(
+                    //     controller: _controller,
+                    //     configurations: const QuillSimpleToolbarConfigurations(
+                    //       showAlignmentButtons: false, // Hide alignment buttons
+                    //       showFontSize: false, // Hide font size options
+                    //       showCodeBlock: false, // Hide code block button
+                    //       showInlineCode: true, // Show inline code button
+                    //       showQuote: false, // Show quote button
+                    //       showIndent: false, // Hide indent options
+                    //       showListCheck: false, // Show checklist button
+                    //       multiRowsDisplay: false,
+                    //     ),
+                    //   ),
+                    // ),
+                    Expanded(
+                      child: QuillEditor.basic(
+                        controller: _controller,
+                        configurations: const QuillEditorConfigurations(),
+                      ),
+                    )
+                  ],
+                )),
           ),
         ],
       ),
@@ -346,6 +380,11 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
               highlightColor: Colors.transparent,
               onTap: () {
                 showTextMenu(context, size);
+                // _controller.formatSelection(quill.Attribute.align);
+                // _controller.formatSelection(quill.Attribute.leftAlignment);
+                // _controller.formatSelection(quill.Attribute.rightAlignment);
+                // _controller.formatSelection(quill.Attribute.centerAlignment);
+                // _controller.formatSelection(quill.Attribute.justifyAlignment);
               },
               child: viewSvg(MediaRes.vText),
             ),
@@ -629,10 +668,12 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   }
 
   void _save() {
+    // Ambil teks dari QuillController (plain text)
+    String contentText = _controller.document.toPlainText();
     saved = NotesModel(
       id: notes.id,
       title: titleController.text,
-      content: contentController.text,
+      content: contentText,
       isPin: notes.isPin,
       isLocked: notes.isLocked,
       biomatricId: notes.biomatricId,
@@ -649,9 +690,10 @@ class _ViewNoteScreenState extends State<ViewNoteScreen> {
   }
 
   void _makeCopy() {
+    String contentText = _controller.document.toPlainText();
     NotesModel copyNotes = NotesModel(
       title: '${titleController.text} Copy',
-      content: contentController.text,
+      content: contentText,
       images: '',
       labelName: '',
       labelId: 0,

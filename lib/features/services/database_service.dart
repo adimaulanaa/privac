@@ -225,24 +225,28 @@ class DatabaseService {
     for (var e in result) {
       res.add(
         NotesModel(
-          id: e['_id'].toString(),
-          title: e['title'].toString(),
-          content: e['content'].toString(),
-          images: e['images'].toString(),
-          labelName: e['label_name'].toString(),
-          labelId: int.parse(e['label_id'].toString()),
-          isPin: int.parse(e['is_pin'].toString()),
-          isLocked: int.parse(e['is_locked'].toString()),
-          password: e['password'].toString(),
-          biomatricId: e['biomatric_id'].toString(),
-          faceId: e['face_id'].toString(),
-          fingerprintId: e['fingerprint_id'].toString(),
-          tokens: e['tokens'].toString(),
-          createdId: e['created_id'].toString(),
-          createdOn: DateTime.parse(e['created_on'].toString()),
-          createdBy: e['created_by'].toString(),
-          updatedOn: DateTime.parse(e['updated_on'].toString()),
-          updatedBy: e['updated_by'].toString(),
+          id: e['_id']?.toString() ?? '',
+          title: e['title']?.toString() ?? '',
+          content: e['content']?.toString() ?? '',
+          images: e['images']?.toString() ?? '',
+          labelName: e['label_name']?.toString() ?? '',
+          labelId: int.parse(e['label_id']?.toString() ?? '0'),
+          isPin: int.parse(e['is_pin']?.toString() ?? '0'),
+          isLocked: int.parse(e['is_locked']?.toString() ?? '0'),
+          password: e['password']?.toString() ?? '',
+          biomatricId: e['biomatric_id']?.toString() ?? '',
+          faceId: e['face_id']?.toString() ?? '',
+          fingerprintId: e['fingerprint_id']?.toString() ?? '',
+          tokens: e['tokens']?.toString() ?? '',
+          createdId: e['created_id']?.toString() ?? '',
+          createdOn: e['created_on'] != null
+              ? DateTime.tryParse(e['created_on'].toString()) ?? DateTime.now()
+              : DateTime.now(),
+          createdBy: e['created_by']?.toString() ?? '',
+          updatedOn: e['updated_on'] != null
+              ? DateTime.tryParse(e['updated_on'].toString()) ?? DateTime.now()
+              : DateTime.now(),
+          updatedBy: e['updated_by']?.toString() ?? '',
         ),
       );
     }
