@@ -37,5 +37,6 @@ class MediaRes {
   static const vLabel = '$_baseIcon/label.svg';
   static const vForwad = '$_baseIcon/forward.svg';
   static const vCopy = '$_baseIcon/copy.svg';
+  // Style Note
 
 }
